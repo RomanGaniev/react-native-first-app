@@ -8,7 +8,7 @@ import _ from 'lodash'
 
 import * as SecureStore from 'expo-secure-store';
 
-export class Posts extends Component {
+export class HomeScreen extends Component {
 
   constructor(props) {
     super(props);
@@ -99,7 +99,7 @@ export class Posts extends Component {
   }
 }
 
-export default Posts;
+export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {

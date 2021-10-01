@@ -7,7 +7,7 @@ import _ from 'lodash';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 
-export class Registration extends Component {
+export class SignUpScreen extends Component {
 
   constructor(props) {
     super(props);
@@ -211,7 +211,7 @@ export class Registration extends Component {
   }
 }
 
-export default Registration;
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
   container: {

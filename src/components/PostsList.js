@@ -64,7 +64,7 @@ export default class PostsList extends Component {
                     <Image source={{uri: 'https://sun1-97.userapi.com/s/v1/ig2/brhuyA2Z_pbBwHHkl50y8kXn8522aHoYD5LPvIRbUbl3IcrKuOIpje2Sro_3Hh8q0_bJhNSQAPHkBeOqmLE9JWpb.jpg?size=200x200&quality=96&crop=0,86,551,551&ava=1'}}
                       style={styles.avatar} />
                     <View>
-                      <Text style={{fontSize: 15}}>{item.first_name + ' ' +item.last_name}</Text>
+                      <Text style={{fontSize: 15}}>{item.author.first_name + ' ' +item.author.last_name}</Text>
                       <Text style={{fontSize: 12, color: 'grey'}}>{item.created_at}</Text>
                     </View>
                   </TouchableOpacity>

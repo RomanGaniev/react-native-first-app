@@ -1,21 +1,38 @@
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Button, ActivityIndicator} from "react-native";
-import { createStackNavigator } from "@react-navigation/stack";
-import Posts from './src/screens/Posts';
-import Auth from './src/screens/Auth';
-import Registration from './src/screens/Registration';
-import { NavigationContainer } from "@react-navigation/native";
-import { Axios } from './src/boot';
+
+import { 
+  NavigationContainer, 
+  DefaultTheme as NavigationDefaultTheme,
+  DarkTheme as NavigationDarkTheme
+} from '@react-navigation/native';
+
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
+import { 
+  Provider as PaperProvider, 
+  DefaultTheme as PaperDefaultTheme,
+  DarkTheme as PaperDarkTheme 
+} from 'react-native-paper';
+
+import { DrawerContent } from './src/screens/DrawerContent';
+
+import MainTabScreen from './src/screens/MainTabScreen';
+import SupportScreen from './src/screens/SupportScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import BookmarkScreen from './src/screens/BookmarkScreen';
 
 import { AuthContext } from './src/components/context';
 
+import RootStackScreen from './src/screens/RootStackScreen';
+
+import { Axios } from './src/boot';
 import Api from './src/services/api';
 const api = new Api('Coin');
 import _ from 'lodash';
 
 import * as SecureStore from 'expo-secure-store';
 
-const Stack = createStackNavigator();
 
 // async function deleteToken() {
 //   // try {
@@ -36,32 +53,39 @@ async function getToken() {
 
 getToken();
 
-// function logout() {
-//   api.call('logout')
-//     .then(({ data }) => {
-//       deleteToken()
-      
-//       Axios.setToken(null);
-//     })
-//     .catch(error => {
-//       deleteToken()
-      
-//       Axios.setToken(null);
-//       // alert('Произошла ошибка')
-//       // Stack.navigation.navigate('Auth');
-//       // navigation.navigate('Auth');
-      
-//     })
-//     .finally(() => {
-//       //
-//     })
-// }
+const Drawer = createDrawerNavigator();
 
-export default function App({ navigation }) {
+const App = () => {
+  const [isDarkTheme, setIsDarkTheme] = React.useState(false);
+
   const initialLoginState = {
     isLoading: true,
     userToken: null,
   };
+
+  const CustomDefaultTheme = {
+    ...NavigationDefaultTheme,
+    ...PaperDefaultTheme,
+    colors: {
+      ...NavigationDefaultTheme.colors,
+      ...PaperDefaultTheme.colors,
+      background: '#ffffff',
+      text: '#333333'
+    }
+  }
+
+  const CustomDarkTheme = {
+    ...NavigationDarkTheme,
+    ...PaperDarkTheme,
+    colors: {
+      ...NavigationDarkTheme.colors,
+      ...PaperDarkTheme.colors,
+      background: '#333333',
+      text: '#ffffff'
+    }
+  }
+
+  const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
   const loginReducer = (prevState, action) => {
     switch( action.type ) {
@@ -146,55 +170,23 @@ export default function App({ navigation }) {
   }
 
   return (
-    <AuthContext.Provider value={authContext}>
-      <NavigationContainer>
-        { loginState.userToken !== null ? (
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Posts"
-              component={Posts}
-              options={{
-                title: 'Новости',
-                headerStyle: {
-                  backgroundColor: '#2787f5',
-                },
-                headerTintColor: '#fff',
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                },
-                headerBackTitle: 'Назад',
-                gestureEnabled: false,
-                headerLeft: ()=> null,
-                // headerRight: () => (
-                //   <Button
-                //     onPress={() => logout({})}
-                //     title="Выйти"
-                //     color="pink"
-                //   />
-                // ),
-              }}
-            />
-          </Stack.Navigator>
-        ) :
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Auth"
-            component={Auth}
-            options={{
-              title: 'Авторизация',
-              headerStyle: {
-                backgroundColor: '#2787f5',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-              headerBackTitle: 'Назад'
-            }}
-          />
-        </Stack.Navigator>
-        }
-      </NavigationContainer>
-    </AuthContext.Provider>
+    <PaperProvider theme={theme}>
+      <AuthContext.Provider value={authContext}>
+        <NavigationContainer>
+          { loginState.userToken !== null ? (
+            <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />}>
+            <Drawer.Screen name="HomeDrawer" component={MainTabScreen} />
+            <Drawer.Screen name="SupportScreen" component={SupportScreen} />
+            <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
+            <Drawer.Screen name="BookmarkScreen" component={BookmarkScreen} />
+          </Drawer.Navigator>
+          ) :
+          <RootStackScreen/>
+          }
+        </NavigationContainer>
+      </AuthContext.Provider>
+    </PaperProvider>
   );
 }
+
+export default App;

@@ -49,7 +49,7 @@ async function getToken() {
 getToken();
 //  = LocalStorage.getItem('token')
 
-axios.defaults.baseURL = 'https://1655-178-129-227-103.ngrok.io/';
+axios.defaults.baseURL = 'https://74af-178-129-90-198.ngrok.io/';
 axios.defaults.headers['Content-Type'] = 'application/json';
 
 axios.interceptors.request.use(config => {

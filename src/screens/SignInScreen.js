@@ -14,7 +14,7 @@ import * as SecureStore from 'expo-secure-store';
 
 import { AuthContext } from '../components/context';
 
-const Auth = ({navigation}) => {
+const SignInScreen = ({navigation}) => {
 
   // constructor(props) {
   //   super(props);
@@ -170,7 +170,7 @@ const Auth = ({navigation}) => {
           <Button title='Войти' onPress={() => loginHandle()}></Button>
           <Button title='Показать токен' onPress={() => getToken()}></Button>
           <Button title='Удалить токен' onPress={() => deleteToken()}></Button>
-          <Button title='Посты' onPress={() => this.props.navigation.navigate('Posts')}></Button>
+          {/* <Button title='Посты' onPress={() => this.props.navigation.navigate('Posts')}></Button> */}
           <View style={{flexDirection: 'row', alignItems: 'flex-end', flexGrow: 1, flex: 1, justifyContent: 'center'}}>
             <View style={{alignItems: 'center'}}>
               <Text style={{fontSize: 18, color: 'grey'}}>Еще нет аккаунта?</Text>
@@ -184,7 +184,7 @@ const Auth = ({navigation}) => {
 
 }
 
-export default Auth;
+export default SignInScreen;
 
 const styles = StyleSheet.create({
   container: {

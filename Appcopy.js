@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, Button} from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import Posts from './src/screens/Posts'
-import Auth from './src/screens/Auth'
-import Registration from './src/screens/Registration'
+import Posts from './src/screens/HomeScreen'
+import Auth from './src/screens/SignInScreen'
+import Registration from './src/screens/SignUpScreen'
 import { NavigationContainer } from "@react-navigation/native";
 import { Axios } from './src/boot'
 
