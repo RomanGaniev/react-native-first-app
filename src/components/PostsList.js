@@ -15,10 +15,6 @@ export default class PostsList extends Component {
       modalCommentVisible: false
     };
   }
-  // static propTypes = {
-  //     posts: PropTypes.array.isRequired,
-  //     modalCommentVisible: false
-  // };
 
   setModalCommentVisible() {
     
@@ -38,10 +34,6 @@ export default class PostsList extends Component {
         // console.log(this.state.posts)
       })
   }
-
-  // useEffect(() => {
-  //   this.abc++;
-  // });
 
   render() {
     console.log(this.props.posts)

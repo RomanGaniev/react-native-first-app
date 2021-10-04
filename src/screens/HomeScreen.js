@@ -1,24 +1,17 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, SafeAreaView, ScrollView, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, SafeAreaView, ScrollView, Button, ActivityIndicator } from 'react-native';
 import PostsList from '../components/PostsList';
 import { Axios } from '../boot'
 import Api from '../services/api';
 const api = new Api('Coin');
 import _ from 'lodash'
-
-import * as SecureStore from 'expo-secure-store';
-
 export class HomeScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { posts: [], refreshing: false };
-    // this.navigationOptions = ({navigation}) => ({
-    //   swipeEnabled: false
-    // });
+    this.state = { posts: [], refreshing: false, isLoading: true };
   }
 
-  // this.props.navigate
 
   wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -31,14 +24,6 @@ export class HomeScreen extends Component {
     this.setState({
       refreshing: false
     });
-    // this.wait(2000).then(() => this.setState({
-    //   refreshing: true
-    // }));
-    // setTimeout(() => {
-    //   this.setState({
-    //     refreshing: true
-    //   });
-    // }, 2000)
   }
 
   showPosts() {
@@ -62,6 +47,9 @@ export class HomeScreen extends Component {
         this.setState(() => ({
           posts: data.data
         }));
+        this.setState({
+          isLoading: false
+        });
       })
       .catch(error => {
         console.log(error)
@@ -83,16 +71,18 @@ export class HomeScreen extends Component {
             />
           }
         >
-          <>
-            {/* <Button title="Выйти из аккаунта" onPress={() => this.logout()} /> */}
             <View style={styles.container}>
             {
-              this.state.posts.length > 0
-              ? <PostsList posts={this.state.posts} />
-              : <Text>No posts</Text>
+              this.state.isLoading 
+              ? <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                  <ActivityIndicator size="large"/>
+                </View>
+              : (this.state.posts.length > 0
+                ? <PostsList posts={this.state.posts} />
+                : <Text>No posts.</Text>)
+                
             }
             </View>
-          </>
         </ScrollView>
       </SafeAreaView>
     );
@@ -104,7 +94,6 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: '',
     backgroundColor: '#e1e1e1'
   },
   containerScrollView: {
@@ -112,8 +101,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: 'pink',
-    // alignItems: 'center',
-    // justifyContent: 'center',
+    backgroundColor: 'pink'
   }
 })

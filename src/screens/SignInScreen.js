@@ -1,26 +1,15 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, RefreshControl, SafeAreaView, ScrollView } from 'react-native';
-// import ajax from '../services/FetchCoins';
-import PostsList from '../components/PostsList';
 import { Axios } from '../boot'
 import Api from '../services/api';
 const api = new Api('Coin');
 import _ from 'lodash'
-
-import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
 
 import * as SecureStore from 'expo-secure-store';
 
 import { AuthContext } from '../components/context';
 
 const SignInScreen = ({navigation}) => {
-
-  // constructor(props) {
-  //   super(props);
-  //   this.state = { email: '', password: '', refreshing: false };
-  //   // this.handleStatusChange = this.handleStatusChange.bind(this);
-  // }
 
   const [data, setData] = React.useState({
     email: '',
@@ -53,7 +42,6 @@ const SignInScreen = ({navigation}) => {
       } else {
         alert('Заполните поля')
       }
-      
     }
   };
 
@@ -69,18 +57,6 @@ const SignInScreen = ({navigation}) => {
     });
   };
 
-  async function saveToken(token) {
-    await SecureStore.setItemAsync('access_token', token);
-    // this.props.navigation.navigate('Posts');
-  };
-
-  async function deleteToken() {
-    // try {
-    //   const token = await SecureStore.getItemAsync('access_token')
-    // } catch (e) {
-      await SecureStore.deleteItemAsync('access_token')
-    // }
-  };
 
   async function getToken() {
     const token = await SecureStore.getItemAsync('access_token');
@@ -91,45 +67,6 @@ const SignInScreen = ({navigation}) => {
     }
   };
 
-  // function onChangeEmail(e) {
-  //   this.setState({
-  //     email: e
-  //   });
-  // }
-  // function onChangePassword(e) {
-  //   this.setState({
-  //     password: e
-  //   });
-  // }
-
-  // login() {
-  //   if(this.state.email && this.state.password) {
-  //     const fd = new FormData()
-  //     fd.append('email', this.state.email)
-  //     fd.append('password', this.state.password)
-  //     api.call('login', fd)
-  //       .then(({ data }) => {
-  //         console.log(data)
-  //         this.saveToken(data.access_token)
-  //         Axios.setToken(data.access_token)
-  //       })
-  //       .catch(error => {
-  //         alert('Неверная связка логин-пароль')
-  //       })
-  //       .finally(() => {
-  //         //
-  //       })
-  //   } else {
-  //     if(!this.state.email) {
-  //       alert('Введите электронную почту')
-  //     } else if(!this.state.password) {
-  //       alert('Введите пароль')
-  //     } else {
-  //       alert('Заполните поля')
-  //     }
-      
-  //   }
-  // }
   return (
     <SafeAreaView style={styles.containerscrollView}>
       <ScrollView
@@ -169,12 +106,11 @@ const SignInScreen = ({navigation}) => {
           />
           <Button title='Войти' onPress={() => loginHandle()}></Button>
           <Button title='Показать токен' onPress={() => getToken()}></Button>
-          <Button title='Удалить токен' onPress={() => deleteToken()}></Button>
           {/* <Button title='Посты' onPress={() => this.props.navigation.navigate('Posts')}></Button> */}
           <View style={{flexDirection: 'row', alignItems: 'flex-end', flexGrow: 1, flex: 1, justifyContent: 'center'}}>
             <View style={{alignItems: 'center'}}>
               <Text style={{fontSize: 18, color: 'grey'}}>Еще нет аккаунта?</Text>
-              <Button title='Зарегистрируйтесь' onPress={() => this.props.navigation.navigate('Registration')}></Button>
+              <Button title='Зарегистрируйтесь' onPress={() => navigation.navigate('SignUpScreen')}></Button>
             </View>
           </View>
         </View>
@@ -206,8 +142,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: 'pink',
-    // alignItems: 'center',
-    // justifyContent: 'center',
+    backgroundColor: 'pink'
   }
 })

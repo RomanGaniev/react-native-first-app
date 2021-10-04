@@ -1,40 +1,3 @@
-// import React, { Component } from 'react';
-// import axios from 'axios';
-
-// import * as SecureStore from 'expo-secure-store';
-
-// axios.token = getToken();
-
-// axios.defaults.baseURL = 'https://68cd-178-129-207-160.ngrok.io/';
-// axios.defaults.headers['Content-Type'] = 'application/json';
-
-// axios.interceptors.request.use(config => {
-//   // config.headers.common.origin = axios.defaults.baseURL
-//   if (axios.token) {
-//     config.headers.common.authorization = `Bearer ${axios.token}`
-//   }
-
-//   return config
-// });
-
-// async function getToken() {
-//   const token = await SecureStore.getItemAsync('access_token');
-  
-//   if(token) {
-//     return token
-//   } else {
-//     return null
-//   }
-// }
-
-// const setToken = (token) => {
-//   axios.token = token;
-// };
-
-// export default {
-//   setToken,
-// };
-
 import React, { Component } from 'react';
 import axios from 'axios';
 
@@ -47,13 +10,11 @@ async function getToken() {
 }
 
 getToken();
-//  = LocalStorage.getItem('token')
 
-axios.defaults.baseURL = 'https://74af-178-129-90-198.ngrok.io/';
+axios.defaults.baseURL = 'https://6e5d-62-133-167-222.ngrok.io/';
 axios.defaults.headers['Content-Type'] = 'application/json';
 
 axios.interceptors.request.use(config => {
-  // config.headers.common.origin = axios.defaults.baseURL
   if (axios.token) {
     config.headers.common.authorization = `Bearer ${axios.token}`;
   }
@@ -61,13 +22,10 @@ axios.interceptors.request.use(config => {
   return config;
 });
 
-
-
 const setToken = (token) => {
   axios.token = token
 
   axios.interceptors.request.use(config => {
-    // config.headers.common.origin = axios.defaults.baseURL
     if (axios.token) {
       config.headers.common.authorization = `Bearer ${axios.token}`;
     }

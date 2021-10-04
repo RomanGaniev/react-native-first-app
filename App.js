@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Button, ActivityIndicator} from "react-native";
+import { View, ActivityIndicator} from "react-native";
 
 import { 
   NavigationContainer, 
@@ -163,7 +163,7 @@ const App = () => {
 
   if( loginState.isLoading ) {
     return(
-      <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+      <View style={{flex:1,justifyContent:'center',alignItems:'center', backgroundColor: '#2787f5'}}>
         <ActivityIndicator size="large"/>
       </View>
     );
@@ -174,12 +174,14 @@ const App = () => {
       <AuthContext.Provider value={authContext}>
         <NavigationContainer>
           { loginState.userToken !== null ? (
-            <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />}>
-            <Drawer.Screen name="HomeDrawer" component={MainTabScreen} />
-            <Drawer.Screen name="SupportScreen" component={SupportScreen} />
-            <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
-            <Drawer.Screen name="BookmarkScreen" component={BookmarkScreen} />
-          </Drawer.Navigator>
+            <Drawer.Navigator screenOptions={{
+              headerShown: false
+            }} drawerContent={props => <DrawerContent {...props} />}>
+              <Drawer.Screen name="HomeDrawer" component={MainTabScreen} />
+              <Drawer.Screen name="SupportScreen" component={SupportScreen} />
+              <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
+              <Drawer.Screen name="BookmarkScreen" component={BookmarkScreen} />
+            </Drawer.Navigator>
           ) :
           <RootStackScreen/>
           }

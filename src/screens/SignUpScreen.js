@@ -1,239 +1,431 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
-import PostsList from '../components/PostsList';
+import React from 'react';
+import { 
+    View, 
+    Text, 
+    Button, 
+    TouchableOpacity, 
+    Dimensions,
+    TextInput,
+    Platform,
+    StyleSheet,
+    ScrollView,
+    StatusBar
+} from 'react-native';
+import * as Animatable from 'react-native-animatable';
+import { LinearGradient } from 'expo-linear-gradient';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Feather from 'react-native-vector-icons/Feather';
+
+import { Axios } from '../boot'
 import Api from '../services/api';
 const api = new Api('Coin');
-import _ from 'lodash';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+import _ from 'lodash'
 
-export class SignUpScreen extends Component {
+import { AuthContext } from '../components/context';
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      first_name: '',
-      last_name: '',
-      email: '',
-      password: '',
-      singleFile: null
-    };
-  }
+const SignInScreen = ({navigation}) => {
 
-  uploadImage = async () => {
-    // Check if any file is selected or not
-    if (this.state.singleFile != null) {
-      // If file selected then create FormData
-      const fileToUpload = this.state.singleFile;
-      const data = new FormData();
-      data.append('name', 'Image Upload');
-      data.append('file_attachment', fileToUpload);
-      // Please change file upload URL
-      // let res = await fetch(
-      //   'http://localhost/upload.php',
-      //   {
-      //     method: 'post',
-      //     body: data,
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data; ',
-      //     },
-      //   }
-      // );
-      // let responseJson = await res.json();
-      const responseJson = {
-        status: 1
-      };
-      if (responseJson.status == 1) {
-        alert('Upload Successful');
+    const [data, setData] = React.useState({
+        first_name: '',
+        last_name: '',
+        email: '',
+        password: '',
+        confirm_password: '',
+        check_firstNameChange: false,
+        check_lastNameChange: false,
+        check_emailChange: false,
+        secureTextEntry: true,
+        confirm_secureTextEntry: true,
+    });
+
+    const { signUp } = React.useContext(AuthContext);
+
+    const signUpHandle = () => {
+      const fd = new FormData()
+      fd.append('first_name', data.first_name)
+      fd.append('last_name', data.last_name)
+      fd.append('email', data.email)
+      fd.append('password', data.password)
+      // fd.append('avatar', this.state.singleFile)
+      api.call('registration', fd)
+        .then(({ data }) => {
+          // signUp()
+          navigation.navigate('SignInScreen')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          //
+        })
+    }
+
+    const firstNameChange = (val) => {
+        if( val.length !== 0 ) {
+            setData({
+                ...data,
+                first_name: val,
+                check_firstNameChange: true
+            });
+        } else {
+            setData({
+                ...data,
+                first_name: val,
+                check_firstNameChange: false
+            });
+        }
+    }
+
+    const lastNameChange = (val) => {
+      if( val.length !== 0 ) {
+          setData({
+              ...data,
+              last_name: val,
+              check_lastNameChange: true
+          });
+      } else {
+          setData({
+              ...data,
+              last_name: val,
+              check_lastNameChange: false
+          });
       }
+  }
+
+  const everythingIsFull = () => {
+    if (data.first_name &&
+        data.last_name &&
+        data.email &&
+        data.password &&
+        data.confirm_password &&
+        data.password === data.confirm_password) {
+      return true
     } else {
-      // If no file selected the show alert
-      alert('Please Select File first');
+      return false
     }
+    data.first_name && data.last_name && data.email && data.password && data.confirm_password && data.password === data.confirm_password
   }
 
-  selectFile = async () => {
-    // Opening Document Picker to select one file
-    try {
-      const res = await DocumentPicker.getDocumentAsync({
-        // Provide which type of file you want user to pick
-        type: '*/*',
-        copyToCacheDirectory: false
-        // There can me more options as well
-        // DocumentPicker.types.allFiles
-        // DocumentPicker.types.images
-        // DocumentPicker.types.plainText
-        // DocumentPicker.types.audio
-        // DocumentPicker.types.pdf
-      });
-      const split = res.uri.split('/');
-      const name = split.pop();
-      const inbox = split.pop();
-      const realPath = `${FileSystem.cacheDirectory}${inbox}/${name}`;
-      console.log('split: ', split, 'name: ', name, 'inbox: ', inbox, 'realPath: ', realPath);
-      // Printing the log realted to the file
-      // console.log('res : ' + JSON.stringify(res));
-      // Setting the state to show single file attributes
-      this.setState({
-        singleFile: res
-      });
-      // setSingleFile(res);
-    } catch (err) {
-      this.setState({
-        singleFile: null
-      });
-      // setSingleFile(null);
-      // Handling any exception (If any)
-      // if (DocumentPicker.isCancel(err)) {
-      //   // If user canceled the document selection
-      //   alert('Canceled');
-      // } else {
-      //   // For Unknown Error
-      //   alert('Unknown Error: ' + JSON.stringify(err));
-      //   throw err;
-      // }
+  const emailChange = (val) => {
+    if( val.length !== 0 ) {
+        setData({
+            ...data,
+            email: val,
+            check_emailChange: true
+        });
+    } else {
+        setData({
+            ...data,
+            email: val,
+            check_emailChange: false
+        });
     }
-  }
-
-  onChangeFirstName(e) {
-    this.setState({
-      first_name: e
-    });
-  }
-  onChangeLastName(e) {
-    this.setState({
-      last_name: e
-    });
-  }
-  onChangeEmail(e) {
-    this.setState({
-      email: e
-    });
-  }
-  onChangePassword(e) {
-    this.setState({
-      password: e
-    });
-  }
-
-  register() {
-    const fd = new FormData()
-    fd.append('first_name', this.state.first_name)
-    fd.append('last_name', this.state.last_name)
-    fd.append('email', this.state.email)
-    fd.append('password', this.state.password)
-    // fd.append('avatar', this.state.singleFile)
-    api.call('registration', fd)
-      .then(({ data }) => {
-        alert(data);
-        // this.save(data.access_token)
-        // this.props.navigation.navigate('Auth')
-        // this.setState(prev => ({
-        //   posts: data.data
-        // }));
-      })
-      .catch(error => {
-        console.log(error)
-      })
-      .finally(() => {
-        //
-      })
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        
-        <Text style={{fontSize: 16, fontWeight: '600', marginBottom: 5, marginTop: 7}}>Имя</Text>
-        <TextInput
-          placeholder='Введите имя'
-          style={styles.input}
-          onChangeText={e => {
-            this.onChangeFirstName(e);
-          }}
-          value={this.state.name}
-        />
-        <Text style={{fontSize: 16, fontWeight: '600', marginBottom: 5, marginTop: 7}}>Фамилия</Text>
-        <TextInput
-          placeholder='Введите фамилию'
-          style={styles.input}
-          onChangeText={e => {
-            this.onChangeLastName(e);
-          }}
-          value={this.state.name}
-        />
-        <Text style={{fontSize: 16, fontWeight: '600', marginBottom: 5}}>Электронный адрес</Text>
-        <TextInput
-          placeholder='Введите электронную почту'
-          style={styles.input}
-          onChangeText={e => {
-            this.onChangeEmail(e);
-          }}
-          value={this.state.email}
-          keyboardType='email-address'
-        />
-        <Text style={{fontSize: 16, fontWeight: '600', marginBottom: 5}}>Пароль</Text>
-        <TextInput
-          placeholder='Придумайте пароль'
-          style={styles.input}
-          onChangeText={e => {
-            this.onChangePassword(e);
-          }}
-          value={this.state.password}
-        />
-        <Button title='Зарегистрироваться' onPress={() => this.register()}></Button>
-        {this.state.singleFile != null ? (
-        <Text style={styles.textStyle}>
-          File Name: {this.state.singleFile.name ? this.state.singleFile.name : ''}
-          {'\n'}
-          Type: {this.state.singleFile.type ? this.state.singleFile.type : ''}
-          {'\n'}
-          File Size: {this.state.singleFile.size ? this.state.singleFile.size : ''}
-          {'\n'}
-          URI: {this.state.singleFile.uri ? this.state.singleFile.uri : ''}
-          {'\n'}
-        </Text>
-      ) : null}
-        <Button title='Добавить фото профиля' onPress={() => this.selectFile()}></Button>
-        
-        <View style={{flexDirection: 'row', alignItems: 'flex-end', flexGrow: 1, flex: 1, justifyContent: 'center'}}>
-          <View style={{alignItems: 'center'}}>
-            <Text style={{fontSize: 18, color: 'grey'}}>Есть аккаунт?</Text>
-            <Button title='К авторизации' onPress={() => this.props.navigation.navigate('Auth')}></Button>
-          </View>
-        </View>
-        {/* <Button
-          title="Go to Details"
-          onPress={() => this.props.navigation.navigate('Posts')}
-        /> */}
-      </View>
-    );
-  }
 }
 
-export default SignUpScreen;
+    const handlePasswordChange = (val) => {
+        setData({
+            ...data,
+            password: val
+        });
+    }
+
+    const handleConfirmPasswordChange = (val) => {
+        setData({
+            ...data,
+            confirm_password: val
+        });
+    }
+
+    const updateSecureTextEntry = () => {
+        setData({
+            ...data,
+            secureTextEntry: !data.secureTextEntry
+        });
+    }
+
+    const updateConfirmSecureTextEntry = () => {
+        setData({
+            ...data,
+            confirm_secureTextEntry: !data.confirm_secureTextEntry
+        });
+    }
+
+    return (
+      <View style={styles.container}>
+          <StatusBar backgroundColor='#009387' barStyle="light-content"/>
+        <View style={styles.header}>
+            <Text style={styles.text_header}>Зарегистрируйся сейчас!</Text>
+        </View>
+        <Animatable.View 
+            animation="fadeInUpBig"
+            style={styles.footer}
+        >
+          <ScrollView>
+            <Text style={styles.text_footer}>Имя</Text>
+            <View style={styles.action}>
+                <FontAwesome 
+                  name="user-o"
+                  color="#05375a"
+                  size={20}
+                />
+                <TextInput 
+                  placeholder="Введите имя"
+                  style={styles.textInput}
+                  autoCapitalize="none"
+                  onChangeText={(val) => firstNameChange(val)}
+                />
+                {data.check_firstNameChange ? 
+                <Animatable.View
+                    animation="bounceIn"
+                >
+                  <Feather 
+                    name="check-circle"
+                    color="green"
+                    size={20}
+                  />
+                </Animatable.View>
+                : null}
+            </View>
+
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Фамилия</Text>
+            <View style={styles.action}>
+                <FontAwesome 
+                  name="user-o"
+                  color="#05375a"
+                  size={20}
+                />
+                <TextInput 
+                  placeholder="Введите фамилию"
+                  style={styles.textInput}
+                  autoCapitalize="none"
+                  onChangeText={(val) => lastNameChange(val)}
+                />
+                {data.check_lastNameChange ? 
+                <Animatable.View
+                    animation="bounceIn"
+                >
+                  <Feather 
+                    name="check-circle"
+                    color="green"
+                    size={20}
+                  />
+                </Animatable.View>
+                : null}
+            </View>
+
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Электронная почта</Text>
+            <View style={styles.action}>
+                <Feather 
+                  name="mail"
+                  color="#05375a"
+                  size={20}
+                />
+                <TextInput 
+                  placeholder="Введите электронную почту"
+                  style={styles.textInput}
+                  autoCapitalize="none"
+                  onChangeText={(val) => emailChange(val)}
+                  keyboardType='email-address'
+                />
+                {data.check_emailChange ? 
+                <Animatable.View
+                    animation="bounceIn"
+                >
+                  <Feather 
+                    name="check-circle"
+                    color="green"
+                    size={20}
+                  />
+                </Animatable.View>
+                : null}
+            </View>
+
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Пароль</Text>
+            <View style={styles.action}>
+                <Feather 
+                    name="lock"
+                    color="#05375a"
+                    size={20}
+                />
+                <TextInput 
+                    placeholder="Введите пароль"
+                    secureTextEntry={data.secureTextEntry ? true : false}
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    onChangeText={(val) => handlePasswordChange(val)}
+                />
+                <TouchableOpacity
+                    onPress={updateSecureTextEntry}
+                >
+                    {data.secureTextEntry ? 
+                    <Feather 
+                        name="eye-off"
+                        color="grey"
+                        size={20}
+                    />
+                    :
+                    <Feather 
+                        name="eye"
+                        color="grey"
+                        size={20}
+                    />
+                    }
+                </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Подтверждение пароля</Text>
+            <View style={styles.action}>
+                <Feather 
+                    name="lock"
+                    color="#05375a"
+                    size={20}
+                />
+                <TextInput 
+                    placeholder="Подтвердите пароль"
+                    secureTextEntry={data.confirm_secureTextEntry ? true : false}
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    onChangeText={(val) => handleConfirmPasswordChange(val)}
+                />
+                <TouchableOpacity
+                    onPress={updateConfirmSecureTextEntry}
+                >
+                    {data.secureTextEntry ? 
+                    <Feather 
+                        name="eye-off"
+                        color="grey"
+                        size={20}
+                    />
+                    :
+                    <Feather 
+                        name="eye"
+                        color="grey"
+                        size={20}
+                    />
+                    }
+                </TouchableOpacity>
+            </View>
+            <View style={styles.textPrivate}>
+                <Text style={styles.color_textPrivate}>
+                  Регистрируясь, вы соглашаетесь с нашими
+                  <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>{" "}Условиями</Text>
+                  <Text style={styles.color_textPrivate}>{" "}и</Text>
+                  <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>{" "}Политикой конфиденциальности</Text>
+                </Text>
+                
+                
+                
+            </View>
+            <View style={styles.button}>
+                <TouchableOpacity
+                    style={styles.signIn}
+                    onPress={() => signUpHandle()}
+                >
+                <LinearGradient
+                    colors={
+                      everythingIsFull() ?
+                      ['#2787f5', '#2787b5'] :
+                      ['grey', 'grey']
+                    }
+                    style={styles.signIn}
+                >
+                    <Text style={[styles.textSign, {
+                        color:'#fff'
+                    }]}>Зарегистрироваться</Text>
+                </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={[styles.signIn, {
+                        borderColor: '#009387',
+                        borderWidth: 1,
+                        marginTop: 15
+                    }]}
+                >
+                    <Text style={[styles.textSign, {
+                        color: '#009387'
+                    }]}>Войти</Text>
+                </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </Animatable.View>
+      </View>
+    );
+};
+
+export default SignInScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // justifyContent: '',
-    backgroundColor: 'white',
-    padding: 10
-  },
-  input: {
-    paddingHorizontal: 10,
-    height: 45,
-    borderColor: 'black',
-    borderWidth: 1.5,
-    borderRadius: 5,
-    marginBottom: 15
-  },
-  textStyle: {
-    backgroundColor: '#fff',
-    fontSize: 15,
-    marginTop: 5,
-    marginLeft: 5,
-    marginRight: 5,
-    textAlign: 'center',
-  }
-})
+    container: {
+      flex: 1, 
+      backgroundColor: '#2787f5'
+    },
+    header: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        paddingHorizontal: 20,
+        paddingBottom: 50
+    },
+    footer: {
+        flex: Platform.OS === 'ios' ? 3 : 5,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: 20,
+        paddingVertical: 30
+    },
+    text_header: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 30
+    },
+    text_footer: {
+        color: '#05375a',
+        fontSize: 18
+    },
+    action: {
+        flexDirection: 'row',
+        marginTop: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f2f2f2',
+        paddingBottom: 5
+    },
+    textInput: {
+        flex: 1,
+        marginTop: Platform.OS === 'ios' ? 0 : -12,
+        paddingLeft: 10,
+        color: '#05375a',
+    },
+    button: {
+        alignItems: 'center',
+        marginTop: 50
+    },
+    signIn: {
+        width: '100%',
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10
+    },
+    textSign: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    textPrivate: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginTop: 20
+    },
+    color_textPrivate: {
+        color: 'grey'
+    }
+  });

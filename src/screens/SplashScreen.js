@@ -18,15 +18,15 @@ const SplashScreen = ({navigation}) => {
 
     return (
       <View style={styles.container}>
-          <StatusBar backgroundColor='#009387' barStyle="light-content"/>
+          <StatusBar backgroundColor='#2787f5' barStyle="light-content"/>
         <View style={styles.header}>
-            {/* <Animatable.Image 
+            <Animatable.Image 
                 animation="bounceIn"
                 duraton="1500"
-            source={require('../assets/logo.png')}
+            source={require('../../assets/adaptive-icon.png')}
             style={styles.logo}
             resizeMode="stretch"
-            /> */}
+            />
         </View>
         <Animatable.View 
             style={[styles.footer, {
@@ -36,15 +36,15 @@ const SplashScreen = ({navigation}) => {
         >
             <Text style={[styles.title, {
                 color: colors.text
-            }]}>Stay connected with everyone!</Text>
-            <Text style={styles.text}>Sign in with account</Text>
+            }]}>Оставайся на связи!</Text>
+            <Text style={styles.text}>Войти с учетной записью</Text>
             <View style={styles.button}>
             <TouchableOpacity onPress={()=>navigation.navigate('SignInScreen')}>
                 <LinearGradient
-                    colors={['#08d4c4', '#01ab9d']}
+                    colors={['#2787f5', '#2787b5']}
                     style={styles.signIn}
                 >
-                    <Text style={styles.textSign}>Get Started</Text>
+                    <Text style={styles.textSign}>Начать</Text>
                     <MaterialIcons 
                         name="navigate-next"
                         color="#fff"
@@ -66,7 +66,7 @@ const height_logo = height * 0.28;
 const styles = StyleSheet.create({
   container: {
     flex: 1, 
-    backgroundColor: '#009387'
+    backgroundColor: '#2787f5'
   },
   header: {
       flex: 2,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
       height: 40,
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: 50,
+      borderRadius: 20,
       flexDirection: 'row'
   },
   textSign: {
