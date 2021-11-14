@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
-    View, 
-    Text, 
-    Button, 
-    TouchableOpacity, 
+    View,
+    Text,
+    Button,
+    Image,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
     Dimensions,
     TextInput,
     Platform,
@@ -11,25 +13,27 @@ import {
     ScrollView,
     StatusBar
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import * as Animatable from 'react-native-animatable';
 import { LinearGradient } from 'expo-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 
-import { Axios } from '../boot'
-import Api from '../services/api';
+import { Axios } from '../../services/boot'
+import Api from '../../services/api';
 const api = new Api('Coin');
 import _ from 'lodash'
 
-import { AuthContext } from '../components/context';
+import { AuthContext } from '../../states/auth/authContext';
 
-const SignInScreen = ({navigation}) => {
+export const SignUpScreen = ({navigation}) => {
 
     const [data, setData] = React.useState({
         first_name: '',
         last_name: '',
         email: '',
         password: '',
+        avatar: null,
         confirm_password: '',
         check_firstNameChange: false,
         check_lastNameChange: false,
@@ -38,26 +42,73 @@ const SignInScreen = ({navigation}) => {
         confirm_secureTextEntry: true,
     });
 
+    useEffect(() => {
+        (async () => {
+          if (Platform.OS !== 'web') {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+              alert('Sorry, we need camera roll permissions to make this work!');
+            }
+          }
+        })();
+    }, []);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images, // Images: только изображения, Videos: только видео, All: изображения и видео
+          allowsEditing: true, // Показывать ли интерфейс для редактирования изображения/видео после его выбора
+          allowMultipleSelection: false, // Разрешить или запретить одновременный выбор нескольких файлов мультимедиа
+          aspect: [4, 3], // Соотношение сторон, которое необходимо поддерживать, при "allowsEditing: true" (только Android,  на iOS всегда квадрат)
+          quality: 1, // Качество сжатия от 0 до 1, где 1 максимальное качество
+          base64: false
+        });
+    
+        console.log(result);
+    
+        if (!result.cancelled) {
+          // result.base64 = base
+
+            // setData({
+            //     ...data,
+            //     password: val
+            // });
+
+            setData({
+                ...data,
+                avatar: {
+                    uri: result.uri
+                }
+            });
+        }
+    };
+
     const { signUp } = React.useContext(AuthContext);
 
     const signUpHandle = () => {
-      const fd = new FormData()
-      fd.append('first_name', data.first_name)
-      fd.append('last_name', data.last_name)
-      fd.append('email', data.email)
-      fd.append('password', data.password)
-      // fd.append('avatar', this.state.singleFile)
-      api.call('registration', fd)
-        .then(({ data }) => {
-          // signUp()
-          navigation.navigate('SignInScreen')
+        const fd = new FormData()
+        fd.append('first_name', data.first_name)
+        fd.append('last_name', data.last_name)
+        fd.append('email', data.email)
+        fd.append('password', data.password)
+
+        let uri = data.avatar.uri
+        let fileType = uri.substring(uri.lastIndexOf(".") + 1)
+        fd.append('avatar', {
+            uri: uri,
+            name: `avatar.${fileType}`,
+            type: `image/${fileType}`
         })
-        .catch(error => {
-          console.log(error)
-        })
-        .finally(() => {
-          //
-        })
+
+        api.call('registration', fd)
+            .then(({ data }) => {
+                navigation.navigate('SignInScreen')
+            })
+            .catch(error => {
+                console.log(error)
+            })
+            .finally(() => {
+                //
+            })
     }
 
     const firstNameChange = (val) => {
@@ -260,7 +311,7 @@ const SignInScreen = ({navigation}) => {
                     autoCapitalize="none"
                     onChangeText={(val) => handlePasswordChange(val)}
                 />
-                <TouchableOpacity
+                <TouchableWithoutFeedback
                     onPress={updateSecureTextEntry}
                 >
                     {data.secureTextEntry ? 
@@ -276,7 +327,7 @@ const SignInScreen = ({navigation}) => {
                         size={20}
                     />
                     }
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
             </View>
 
             <Text style={[styles.text_footer, {
@@ -295,7 +346,7 @@ const SignInScreen = ({navigation}) => {
                     autoCapitalize="none"
                     onChangeText={(val) => handleConfirmPasswordChange(val)}
                 />
-                <TouchableOpacity
+                <TouchableWithoutFeedback
                     onPress={updateConfirmSecureTextEntry}
                 >
                     {data.secureTextEntry ? 
@@ -311,7 +362,11 @@ const SignInScreen = ({navigation}) => {
                         size={20}
                     />
                     }
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
+            </View>
+            <View>
+                <Button title="Загрузить фото профиля" onPress={pickImage} />
+                {data.avatar && <Image source={{ uri: data.avatar.uri }} style={{ width: 150, height: 150 }} />}
             </View>
             <View style={styles.textPrivate}>
                 <Text style={styles.color_textPrivate}>
@@ -320,9 +375,6 @@ const SignInScreen = ({navigation}) => {
                   <Text style={styles.color_textPrivate}>{" "}и</Text>
                   <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>{" "}Политикой конфиденциальности</Text>
                 </Text>
-                
-                
-                
             </View>
             <View style={styles.button}>
                 <TouchableOpacity
@@ -361,8 +413,6 @@ const SignInScreen = ({navigation}) => {
       </View>
     );
 };
-
-export default SignInScreen;
 
 const styles = StyleSheet.create({
     container: {

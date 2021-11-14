@@ -19,7 +19,7 @@ import {
 // import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Ionicons, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
 
-import{ AuthContext } from '../components/context';
+import{ AuthContext } from '../states/auth/authContext';
 
 export function DrawerContent(props) {
 

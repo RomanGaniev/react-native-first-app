@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, RefreshControl, SafeAreaView, ScrollView } from 'react-native';
-import { Axios } from '../boot'
-import Api from '../services/api';
+import * as Device from 'expo-device';
+import { Axios } from '../../services/boot'
+import Api from '../../services/api';
 const api = new Api('Coin');
 import _ from 'lodash'
 
 import * as SecureStore from 'expo-secure-store';
 
-import { AuthContext } from '../components/context';
+import { AuthContext } from '../../states/auth/authContext';
 
-const SignInScreen = ({navigation}) => {
+export const SignInScreen = ({navigation}) => {
 
   const [data, setData] = React.useState({
     email: '',
@@ -19,7 +20,7 @@ const SignInScreen = ({navigation}) => {
 
   const { signIn } = React.useContext(AuthContext);
 
-  loginHandle = () => {
+  let loginHandle = () => {
     if(data.email && data.password) {
       const fd = new FormData()
       fd.append('email', data.email)
@@ -59,7 +60,12 @@ const SignInScreen = ({navigation}) => {
 
 
   async function getToken() {
-    const token = await SecureStore.getItemAsync('access_token');
+    let token = ""
+    if (Device.brand) {
+      token = await SecureStore.getItemAsync('access_token');
+    } else {
+      token = localStorage.getItem('access_token');
+    }
     if(token) {
       console.log(token)
     } else {
@@ -119,8 +125,6 @@ const SignInScreen = ({navigation}) => {
   );
 
 }
-
-export default SignInScreen;
 
 const styles = StyleSheet.create({
   container: {

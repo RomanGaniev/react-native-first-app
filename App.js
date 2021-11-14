@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { View, ActivityIndicator} from "react-native";
+import * as Device from 'expo-device';
 
 import { 
   NavigationContainer, 
@@ -22,33 +23,32 @@ import SupportScreen from './src/screens/SupportScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import BookmarkScreen from './src/screens/BookmarkScreen';
 
-import { AuthContext } from './src/components/context';
-
 import RootStackScreen from './src/screens/RootStackScreen';
 
-import { Axios } from './src/boot';
+import { Axios, Pusher } from './src/services/boot';
 import Api from './src/services/api';
 const api = new Api('Coin');
 import _ from 'lodash';
 
 import * as SecureStore from 'expo-secure-store';
 
-
-// async function deleteToken() {
-//   // try {
-//   //   const token = await SecureStore.getItemAsync('access_token')
-//   // } catch (e) {
-//     await SecureStore.deleteItemAsync('access_token')
-//   // }
-// }
-// deleteToken();
+import { AuthContext, authReducer } from './src/states/auth'
 
 async function getToken() {
-  const tokenStorage = await SecureStore.getItemAsync('access_token')
+  let tokenStorage = ""
+  if (Device.brand) {
+    tokenStorage = await SecureStore.getItemAsync('access_token');
+  } else {
+    tokenStorage = localStorage.getItem('access_token');
+  }
   console.log('ТОКЕН ХРАНИЛИЩА: ', tokenStorage)
 
-  const tokenAxios = Axios.getToken()
-  console.log('ТОКЕН AXIOS: ', tokenAxios)
+  // const ast = await echo(tokenStorage)
+
+  // ast.private(`test-channel`)
+  //     .listen('App\\Events\\TestEvent', (e) => {
+  //         console.log(e);
+  //     });
 }
 
 getToken();
@@ -57,11 +57,6 @@ const Drawer = createDrawerNavigator();
 
 const App = () => {
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
-
-  const initialLoginState = {
-    isLoading: true,
-    userToken: null,
-  };
 
   const CustomDefaultTheme = {
     ...NavigationDefaultTheme,
@@ -87,42 +82,22 @@ const App = () => {
 
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
-  const loginReducer = (prevState, action) => {
-    switch( action.type ) {
-      case 'RETRIEVE_TOKEN': 
-        return {
-          ...prevState,
-          userToken: action.token,
-          isLoading: false,
-        };
-      case 'LOGIN': 
-        return {
-          ...prevState,
-          userToken: action.token,
-          isLoading: false,
-        };
-      case 'LOGOUT': 
-        return {
-          ...prevState,
-          userToken: null,
-          isLoading: false,
-        };
-      case 'REGISTER': 
-        return {
-          ...prevState,
-          userToken: action.token,
-          isLoading: false,
-        };
-    }
+  const initialAuthState = {
+    isLoading: true,
+    userToken: null,
   };
 
-  const [loginState, dispatch] = React.useReducer(loginReducer, initialLoginState);
+  const [authState, dispatch] = React.useReducer(authReducer, initialAuthState);
 
   const authContext = React.useMemo(() => ({
     signIn: async(access_token) => {
 
       try {
-        await SecureStore.setItemAsync('access_token', access_token);
+        if (Device.brand) {
+          await SecureStore.setItemAsync('access_token', access_token);
+        } else {
+          localStorage.setItem('access_token', access_token);
+        }
         Axios.setToken(access_token);
       } catch(e) {
         console.log(e);
@@ -134,7 +109,11 @@ const App = () => {
       // setUserToken(null);
       // setIsLoading(false);
       try {
-        await SecureStore.deleteItemAsync('access_token');
+        if (Device.brand) {
+          await SecureStore.deleteItemAsync('access_token');
+        } else {
+          localStorage.removeItem('access_token');
+        }
       } catch(e) {
         console.log(e);
       }
@@ -152,7 +131,11 @@ const App = () => {
       let userToken;
       userToken = null;
       try {
-        userToken = await SecureStore.getItemAsync('access_token');
+        if (Device.brand) {
+          userToken = await SecureStore.getItemAsync('access_token');
+        } else {
+          userToken = localStorage.getItem('access_token');
+        }
       } catch(e) {
         console.log(e);
       }
@@ -161,7 +144,7 @@ const App = () => {
     }, 1000);
   }, []);
 
-  if( loginState.isLoading ) {
+  if( authState.isLoading ) {
     return(
       <View style={{flex:1,justifyContent:'center',alignItems:'center', backgroundColor: '#2787f5'}}>
         <ActivityIndicator size="large"/>
@@ -173,7 +156,7 @@ const App = () => {
     <PaperProvider theme={theme}>
       <AuthContext.Provider value={authContext}>
         <NavigationContainer>
-          { loginState.userToken !== null ? (
+          { authState.userToken !== null ? (
             <Drawer.Navigator screenOptions={{
               headerShown: false
             }} drawerContent={props => <DrawerContent {...props} />}>

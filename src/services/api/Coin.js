@@ -10,6 +10,7 @@ class Coin {
   })
 
   showPosts = () => axios.get('api/v1/user/posts')
+  showOnePost = (data) => axios.get(`api/v1/user/posts/${data.id}`, data)
 
   likePost = (data) => axios.post(`api/v1/user/posts/${data.post}/like`, data, {
     headers: {
@@ -34,6 +35,14 @@ class Coin {
       'Content-Type': 'multipart/form-data'
     }
   })
+
+  sendImage = (data) => axios.post('api/v1/user/send_image', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+
+  getImage = () => axios.get('api/v1/user/get_image')
 
 }
 export default Coin

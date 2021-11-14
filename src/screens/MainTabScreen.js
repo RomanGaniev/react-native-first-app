@@ -6,10 +6,13 @@ import { Button } from 'react-native';
 
 import { Ionicons, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
 
-import HomeScreen from './HomeScreen';
-import DetailsScreen from './DetailsScreen';
-import ExploreScreen from './ExploreScreen';
-import ProfileScreen from './ProfileScreen';
+import {
+  HomeScreen,
+  DetailsScreen,
+  ProfileScreen,
+  ExploreScreen
+} from './MainTabs'
+import { View } from 'react-native-animatable';
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -83,41 +86,46 @@ const HomeStackScreen = ({navigation}) => (
   <HomeStack.Navigator
     screenOptions={{
       headerStyle: {
-      backgroundColor: '#2787f5',
+      backgroundColor: '#ffffff',
       },
-      headerTintColor: '#fff',
+      headerTintColor: 'black',
       headerTitleStyle: {
-      fontWeight: 'bold'
+        fontWeight: '600',
+        fontSize: 21
       }
-    }}
-  >
-          <HomeStack.Screen
-            name="HomeScreen"
-            component={HomeScreen}
-            options={{
-              title:'Публикации',
-              headerLeft: () => (
-                <MaterialCommunityIcons.Button name="menu" size={25} backgroundColor="#2787f5" onPress={() => navigation.openDrawer()}></MaterialCommunityIcons.Button>
-              )
-            }}
-          />
+    }}>
+    <HomeStack.Screen
+      name="HomeScreen"
+      component={HomeScreen}
+      options={{
+        title:'Публикации',
+        headerLeft: () => (
+          <MaterialCommunityIcons.Button name="menu" size={25} backgroundColor="#ffffff" color="black" onPress={() => navigation.openDrawer()}></MaterialCommunityIcons.Button>
+        ),
+        // headerRight: () => (
+        //   <MaterialCommunityIcons.Button name="plus-circle" size={25} backgroundColor="#2787f5" onPress={() => navigation.navigate('AddPostScreen')}></MaterialCommunityIcons.Button>
+        // )
+      }}
+    />
   </HomeStack.Navigator>
 );
 
 const DetailsStackScreen = ({navigation}) => (
-<DetailsStack.Navigator screenOptions={{
-        headerStyle: {
-        backgroundColor: '#2787f5',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-        fontWeight: 'bold'
-        }
-    }}>
-        <DetailsStack.Screen name="Details" component={DetailsScreen} options={{
-        headerLeft: () => (
-            <MaterialCommunityIcons.Button name="menu" size={25} backgroundColor="#2787f5" onPress={() => navigation.openDrawer()}></MaterialCommunityIcons.Button>
-        )
-        }} />
+<DetailsStack.Navigator
+  screenOptions={{
+    headerStyle: {
+    backgroundColor: '#ffffff',
+    },
+    headerTintColor: 'black',
+    headerTitleStyle: {
+      fontWeight: '600',
+      fontSize: 21
+    }
+  }}>
+  <DetailsStack.Screen name="Details" component={DetailsScreen} options={{
+  headerLeft: () => (
+      <MaterialCommunityIcons.Button name="menu" size={25} backgroundColor="#ffffff" color="black" onPress={() => navigation.openDrawer()}></MaterialCommunityIcons.Button>
+  )
+  }} />
 </DetailsStack.Navigator>
 );
