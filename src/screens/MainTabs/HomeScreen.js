@@ -69,24 +69,7 @@ export const HomeScreen = () => {
   }
 
   useEffect(() => {
-    
     showPosts()
-    // setTimeout(() => {
-    //   const new_postss = posts.map((post) => {
-    //     return {...post}
-    //   })
-    //   _.orderBy(new_postss, 'created_at', 'desc')
-    //   setPosts(new_postss)
-    //   console.log('posts::::::: ', posts)
-    // }, 2000)
-    
-    
-    // const new_postss = posts.map((post) => {
-    //   return {...post}
-    // })
-    // // _.orderBy(new_posts, 'created_at', 'desc')
-    // console.log('new_postssWWWWWWWWWW: ', new_postss)
-    // setPosts(new_postss)
   }, [])
 
   const likePost = (post_id) => {
@@ -108,29 +91,32 @@ export const HomeScreen = () => {
           />
         }
       >
+        <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center', height: 55, paddingHorizontal: 14,}}>
+          <TouchableOpacity style={styles.addButton} onPress={() => toggleModalVisible()}>
+            <MaterialCommunityIcons name="plus-box" size={25} color="#2887f5" />
+            <Text style={{color: '#2887f5', fontWeight: '600'}}>Создать запись</Text>
+          </TouchableOpacity>
+        </View>
           {
-            isLoading 
-            ? <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                <ActivityIndicator size="large"/>
-              </View>
-            : (posts.length > 0
-              ? <>
-                  <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center', height: 55, paddingHorizontal: 14,}}>
-                    <TouchableOpacity style={styles.addButton} onPress={() => toggleModalVisible()}>
-                      <MaterialCommunityIcons name="plus-box" size={25} color="#2887f5" />
-                      <Text style={{color: '#2887f5', fontWeight: '600'}}>Создать запись</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.separator} />
-                  
-                  <PostsList
-                    posts={posts}
-                    showOnePost={(post_id) => showOnePost(post_id)}
-                    likePost={(post_id) => likePost(post_id)}
-                  />
-                </>
-              : <Text>No posts.</Text>)
-              
+            isLoading ?
+                <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                  <ActivityIndicator size="large"/>
+                </View>
+              : 
+              (
+                posts.length > 0 ?
+                    <>
+                      <View style={styles.separator} />
+                      
+                      <PostsList
+                        posts={posts}
+                        showOnePost={(post_id) => showOnePost(post_id)}
+                        likePost={(post_id) => likePost(post_id)}
+                      />
+                    </>
+                  :
+                    <Text style={{textAlign: 'center', alignSelf: 'center'}}>No posts.</Text>
+              )
           }
       </ScrollView>
       <ModalAddPost toggleModalVisible={() => toggleModalVisible()} modalVisible={modalVisible} />
@@ -147,7 +133,8 @@ const styles = StyleSheet.create({
     height: 8
   },
   scrollView: {
-    backgroundColor: 'pink'
+    // backgroundColor: 'pink'
+    // flex: 1
   },
   addButton: {
     borderRadius: 9,

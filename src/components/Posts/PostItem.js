@@ -19,7 +19,6 @@ export default class PostItem extends Component {
 
   ItsHandleLike() {
     this.props.post.liked = !this.props.post.liked
-    console.log('post.liked: ', this.props.post.liked)
     api.call('likePost', { post: this.props.post.id })
       .then(({ data }) => {
         this.props.handleLike(this.props.post.id)
@@ -33,11 +32,13 @@ export default class PostItem extends Component {
   }
 
   componentDidMount() {
-    Image.getSize(this.props.post.data.image, (width, height) => {
-      const scaleFactor = width / this.props.screenWidth
-      const imageHeight = height / scaleFactor
-      this.setState({imgHeight: imageHeight})
-    })
+    if (this.props.post.data.image) {
+      Image.getSize(this.props.post.data.image, (width, height) => {
+        const scaleFactor = width / this.props.screenWidth
+        const imageHeight = height / scaleFactor
+        this.setState({imgHeight: imageHeight})
+      })
+    }
   }
 
   render() {
@@ -63,9 +64,13 @@ export default class PostItem extends Component {
             <Text style={styles.textBody}>{this.props.post.data.text}</Text>
             : null
           }
-          {/* <Text style={styles.textBody}>{this.props.post.data.text}</Text> */}
-          <Image source={{uri: this.props.post.data.image}}
-            style={{width: this.props.screenWidth, height: imgHeight}} />
+          {this.props.post.data.image ?
+            <Image
+              source={{uri: this.props.post.data.image}}
+              style={{width: this.props.screenWidth, height: imgHeight}} />
+            : null
+          }
+          
         </View>
         <View style={styles.actionsContainer}>
           <TouchableOpacity style={this.props.post.liked ? styles.actionLike : styles.actionNoLike}>
