@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 
-class Coin {
+class User {
 
   createPost = (data) => axios.post('api/v1/user/post/create', data, {
     headers: {
@@ -18,24 +18,6 @@ class Coin {
     }
   })
 
-  login = (data) => axios.post('api/v1/auth/login', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-
-  logout = (data) => axios.post('api/v1/auth/logout', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-
-  registration = (data) => axios.post('api/v1/auth/registration', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-
   sendImage = (data) => axios.post('api/v1/user/send_image', data, {
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -44,5 +26,13 @@ class Coin {
 
   getImage = () => axios.get('api/v1/user/get_image')
 
+  showComments = (data) => axios.get(`api/v1/user/posts/${data.id}/comments`, data)
+
+  sendNewComment = (data) => axios.post('api/v1/user/posts/add_comment', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+
 }
-export default Coin
+export default User

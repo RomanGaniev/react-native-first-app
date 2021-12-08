@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, Button, RefreshControl, SafeAreaView
 import * as Device from 'expo-device';
 import { Axios } from '../../services/boot'
 import Api from '../../services/api';
-const api = new Api('Coin');
+const api = new Api('Auth');
 import _ from 'lodash'
 
 import * as SecureStore from 'expo-secure-store';

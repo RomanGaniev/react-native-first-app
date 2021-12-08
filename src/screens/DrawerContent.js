@@ -19,7 +19,7 @@ import {
 // import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Ionicons, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
 
-import{ AuthContext } from '../states/auth/authContext';
+import { AuthContext } from '../states/auth/authContext';
 
 export function DrawerContent(props) {
 
@@ -135,7 +135,7 @@ export function DrawerContent(props) {
                         size={size}
                         />
                     )}
-                    label="Выйти нахуй"
+                    label="Выйти"
                     onPress={() => {signOut()}}
                 />
             </Drawer.Section>

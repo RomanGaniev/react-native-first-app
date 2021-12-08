@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import Coin from './Coin'
+import Auth from './Auth'
+import User from './User'
 
 export {
-  Coin
+  Auth,
+  User
 }

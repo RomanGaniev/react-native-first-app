@@ -18,41 +18,12 @@ async function getToken() {
   }
   console.log('ТОКЕН ХРАНИЛИЩА: ', tokenStorage)
 
-  // const ast = await Pusher(tokenStorage)
-
-  // // console.log(ast)
-  // ast.channel(`post-channel`)
-  //     .listen('PostChanged', (e) => {
-  //         console.log(e)
-  //     });
-
-  //     console.log(ast)
-}
-
-function like(post_id) {
-  api.call('likePost', { post: post_id })
-    .then(({ data }) => {
-      // this.setState({
-      //   posts: data.data
-      // });
-      console.log('ОК: ' + data);
-    })
-    .catch(error => {
-      // console.log(error)
-    })
-    .finally(() => {
-      // console.log(this.state.posts)
-    })
 }
 
 export const DetailsScreen = ({navigation}) => {
     return (
       <View style={styles.container}>
         <Text>Details Screen</Text>
-        <Button
-            title="Like"
-            onPress={() => like(1)}
-        />
         <Button
             title="Go to details screen...again"
             onPress={() => navigation.push("Details")}

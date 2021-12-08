@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, Keyboard, InputAccessoryView, Button, ScrollView, TouchableOpacity, Image, ActionSheetIOS } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, Keyboard, InputAccessoryView, Button, ScrollView, TouchableOpacity, Image, ActionSheetIOS, Alert } from 'react-native';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import GestureRecognizer from 'react-native-swipe-gestures';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,7 +7,7 @@ import { Dimensions } from 'react-native';
 import { Platform } from 'react-native';
 
 import Api from '../../services/api';
-const api = new Api('Coin');
+const api = new Api('User');
 import _ from 'lodash'
 
 import * as SecureStore from 'expo-secure-store';
@@ -16,15 +16,16 @@ import { Axios, Pusher } from '../../services/boot';
 import { shadow } from 'react-native-paper';
 
 const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
-  // const [ isKeyboardShow, setKeyboardShow ] = useState(false);
   const [text, setText] = useState('');
-  const [textT, setTextT] = useState('');
   const [image, setImage] = useState(null);
   const [imgWidth, setImgWidth] = useState(0);
   const [imgHeight, setImgHeight] = useState(0);
 
-  const inputAccessoryViewID = 'uniqueID';
-  let keyboardDidShowListener = null, keyboardDidHideListener = null
+  const inputRef = useRef('qwerty')
+  const inputAccessoryViewID = 'uniqueID'
+
+  const [inputAccessoryShown, setInputAccessoryShown] = useState(true);
+
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
@@ -36,44 +37,8 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
     })()
   }, [])
 
-  // const _keyboardDidShow = (event) => {
-  //   const { duration } = event;
-  //   if (!duration) {
-  //     return;
-  //   }
-  //   setKeyboardShow(true);
-  // }
-
-  // const _keyboardDidHide = (event) => {
-  //   if (!event) {
-  //     return;
-  //   }
-  //   const { duration } = event;
-  //   if (!duration) {
-  //     return;
-  //   }
-  //   setKeyboardShow(false);
-  // }
-
-  // useEffect(() => {
-  //   if (modalVisible) {
-  //     keyboardDidShowListener = Keyboard.addListener(
-  //       'keyboardDidShow',
-  //       _keyboardDidShow,
-  //     );
-  //     keyboardDidHideListener = Keyboard.addListener(
-  //       'keyboardDidHide',
-  //       _keyboardDidHide,
-  //     );
-  //   } else {
-  //     if (keyboardDidShowListener) 
-  //     keyboardDidShowListener.remove();
-  //     if (keyboardDidHideListener) 
-  //     keyboardDidHideListener.remove();
-  //   }
-  // }, [modalVisible])
-
   const pickImage = async () => {
+    setInputAccessoryShown(true)
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images, // Images: только изображения, Videos: только видео, All: изображения и видео
       allowsEditing: true, // Показывать ли интерфейс для редактирования изображения/видео после его выбора
@@ -149,7 +114,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
   }
 
   return (
-    <View style={{backgroundColor: 'white'}}>
+    <View>
       <GestureRecognizer
         style={{flex: 1}}
         config={{
@@ -157,59 +122,84 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
           directionalOffsetThreshold: 100,
           gestureIsClickThreshold	: 1
         }}
-        onSwipeDown={() => close()}>
+        onSwipeDown={() => close()}
+      >
         <Modal
           animationType="slide"
           visible={modalVisible}
-          presentationStyle='formSheet'>
-          <View style={{paddingHorizontal: 10}}>
-            <View style={{height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <TouchableOpacity
-                style={{width: 38}}
-                onPress={() => close()}>
-                <MaterialCommunityIcons name="close-circle" size={28} color="#c9c9c9" />
+          presentationStyle='formSheet'
+        >
+          <View style={styles.header}>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity style={{width: 62, ...styles.button}} onPress={() => close()}>
+                <View style={styles.icon}>
+                  <MaterialCommunityIcons name="close-circle" size={28} color="#c9c9c9" />
+                </View>
               </TouchableOpacity>
-
-              <Text style={{fontSize: 18, fontWeight: '600'}}>Роман</Text>
-
-              <TouchableOpacity onPress={() => createPost()} disabled={text !== '' && image} >
-                <MaterialCommunityIcons name="arrow-up-circle" size={38} color={text || image ? '#2887f5' : 'grey' } />
+              <Text style={styles.username}>Роман</Text>
+              <TouchableOpacity style={styles.button} onPress={() => createPost()} disabled={!(text || image)}>
+                <View style={styles.icon}>
+                  <MaterialCommunityIcons name="arrow-up-circle" size={38} color={text || image ? '#2887f5' : 'grey' } />
+                </View>
               </TouchableOpacity>
             </View>
           </View>
-
           <View>
-            <ScrollView>
-              <View style={{paddingHorizontal: 14, paddingBottom: 7}}>
-                <View style={{height: 1, backgroundColor: '#ececec'}}></View>
-              </View>
+            <ScrollView keyboardShouldPersistTaps='always'>
+              <View style={styles.separator}></View>
               <View>
                 <TextInput
-                multiline
-                placeholder='Что у вас нового?'
-                placeholderTextColor='grey'
-                autoFocus={true}
-                style={{fontSize: 22, fontWeight: '300', marginHorizontal: 14}}
-                value={text}
-                onChangeText={(val) => setText(val)
+                  ref={inputRef}
+                  multiline
+                  inputAccessoryViewID={inputAccessoryViewID}
+                  placeholder='Что у вас нового?'
+                  placeholderTextColor='grey'
+                  autoFocus={true}
+                  style={styles.input}
+                  value={text}
+                  onChangeText={(val) => setText(val)}
+                  onFocus={() => {
+                    setInputAccessoryShown(false)
+                  }}
+                  onBlur={() => {
+                    setInputAccessoryShown(true)
+                  }}/>
+                <InputAccessoryView style={styles.inputAccessoryView} nativeID={inputAccessoryViewID}>
+                    <View style={{flex: 1}}>
+                      <View style={styles.separator}></View>
+                      <View style={styles.buttonsContainer}>
+                        <TouchableOpacity style={styles.button} onPress={pickImage}>
+                          <View style={styles.icon}>
+                            <Feather name="image" size={25} color="grey" />
+                          </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button} onPress={() => Keyboard.dismiss()}>
+                          <View style={styles.icon}>
+                            <Feather name="chevron-down" size={30} color="grey" />
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                </InputAccessoryView>
+                { inputAccessoryShown &&
+                    <InputAccessoryView style={styles.inputAccessoryView}>
+                      <View style={{flex: 1}}>
+                        <View style={styles.separator}></View>
+                        <View style={styles.buttonsContainer}>
+                          <TouchableOpacity style={styles.button} onPress={pickImage}>
+                            <View style={styles.icon}>
+                              <Feather name="image" size={25} color="grey" />
+                            </View>
+                          </TouchableOpacity>
+                          <TouchableOpacity style={styles.button} onPress={() => inputRef.current.focus()}>
+                            <View style={styles.icon}>
+                              <Feather name="chevron-up" size={30} color="grey" />
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </InputAccessoryView>
                 }
-              />
-              <InputAccessoryView style={{height: 50}}>
-                <View style={{backgroundColor: 'blue', flex: 1}}>
-                  <View style={{paddingHorizontal: 15}}>
-                    <View style={{height: 1, backgroundColor: '#ececec'}}></View>
-                  </View>
-
-                  <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, flex: 1}}>
-                    <TouchableOpacity onPress={pickImage}>
-                      <Feather name="image" size={25} color="grey" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => Keyboard.dismiss()}>
-                      <Feather name="chevron-down" size={30} color="grey" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </InputAccessoryView>
               </View>
               
             </ScrollView>
@@ -220,7 +210,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
                     <Button title='delete' onPress={() => setImage(null)} />
                   </>
               }
-          </View>
+              </View>
         </Modal>
       </GestureRecognizer>
     </View>
@@ -230,5 +220,40 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
 export default ModalAddPost
 
 const styles = StyleSheet.create({
- //
+  header: {
+    height: 50
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#ececec',
+    marginHorizontal: 15
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flex: 1,
+    backgroundColor: 'white'
+  },
+  icon: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  inputAccessoryView: {
+    height: 50,
+    backgroundColor: 'white'
+  },
+  input: {
+    fontSize: 22,
+    fontWeight: '300',
+    marginHorizontal: 14,
+    marginTop: 7
+  },
+  button: {
+    paddingHorizontal: 12
+  },
+  username: {
+    fontSize: 20,
+    fontWeight: '600'
+  },
 });

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, ActivityIndicator} from "react-native";
+import { View } from "react-native";
 import * as Device from 'expo-device';
 
 import { 
@@ -13,7 +13,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { 
   Provider as PaperProvider, 
   DefaultTheme as PaperDefaultTheme,
-  DarkTheme as PaperDarkTheme 
+  DarkTheme as PaperDarkTheme,
+  ActivityIndicator
 } from 'react-native-paper';
 
 import { DrawerContent } from './src/screens/DrawerContent';
@@ -42,13 +43,6 @@ async function getToken() {
     tokenStorage = localStorage.getItem('access_token');
   }
   console.log('ТОКЕН ХРАНИЛИЩА: ', tokenStorage)
-
-  // const ast = await echo(tokenStorage)
-
-  // ast.private(`test-channel`)
-  //     .listen('App\\Events\\TestEvent', (e) => {
-  //         console.log(e);
-  //     });
 }
 
 getToken();
@@ -102,7 +96,6 @@ const App = () => {
       } catch(e) {
         console.log(e);
       }
-      // console.log('user token: ', userToken);
       dispatch({ type: 'LOGIN', token: access_token });
     },
     signOut: async() => {
@@ -139,15 +132,14 @@ const App = () => {
       } catch(e) {
         console.log(e);
       }
-      // console.log('user token: ', userToken);
       dispatch({ type: 'RETRIEVE_TOKEN', token: userToken });
     }, 1000);
   }, []);
 
   if( authState.isLoading ) {
     return(
-      <View style={{flex:1,justifyContent:'center',alignItems:'center', backgroundColor: '#2787f5'}}>
-        <ActivityIndicator size="large"/>
+      <View style={{ flex:1, justifyContent:'center', alignItems:'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color="grey"/>
       </View>
     );
   }

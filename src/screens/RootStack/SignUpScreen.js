@@ -21,7 +21,7 @@ import Feather from 'react-native-vector-icons/Feather';
 
 import { Axios } from '../../services/boot'
 import Api from '../../services/api';
-const api = new Api('Coin');
+const api = new Api('Auth');
 import _ from 'lodash'
 
 import { AuthContext } from '../../states/auth/authContext';
