@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ActionSheetIOS } from 'react-native';
+import React, { useState, useEffect, createContext } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons, Octicons } from '@expo/vector-icons';
 
 import ModalImageViewer from './ModalImageViewer';
@@ -8,16 +8,19 @@ import Api from '../../services/api';
 const api = new Api('User');
 import _ from 'lodash'
 
-import { Axios, Pusher } from '../../services/boot';
+import { Axios, Pusher } from '../../services/boot'
+import { useToggle } from '../../helpers/useToggle'
 
-const PostItem = ({ post, screenWidth, loadPost, goToPost }) => {
+export const PostItemContext = createContext()
+
+const PostItem = ({ postItem, screenWidth, loadPost, goToPost, showImageViewer, like, toShare, showOptions }) => {
 
   const [imgHeight, setImgHeight] = useState(0)
-  const [modalVisible, setModalVisible] = useState(false)
+  // const [modalVisible, toggleModalVisible] = useToggle(false) 
 
   useEffect(() => {
-    if (post.data.image) {
-      Image.getSize(post.data.image, (width, height) => {
+    if (postItem.data.image) {
+      Image.getSize(postItem.data.image, (width, height) => {
         const scaleFactor = width / screenWidth
         const imageHeight = height / scaleFactor
         setImgHeight(imageHeight)
@@ -25,133 +28,83 @@ const PostItem = ({ post, screenWidth, loadPost, goToPost }) => {
     }
   }, [screenWidth])
 
-  const like = () => {
-    post.liked = !post.liked
-    api.call('likePost', { post: post.id })
-      .then(({ data }) => {
-        loadPost(post.id)
-      })
-      .catch(error => {
-        //
-      })
-      .finally(() => {
-        //
-      })
-  }
-
-  const showOptions = () => {
-    console.log(post.comments_count)
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Отмена', 'Сохранить в закладках', 'Уведомлять о новых записях', 'Скопировать ссылку'],
-        cancelButtonIndex: 0,
-        tintColor: '#2887f5'
-      },
-      buttonIndex => {
-        if (buttonIndex === 1) {
-          // setText('')
-          // setImage(null)
-          // toggleModalVisible()
-        }
-      }
-    )
-  }
-
-  const toShare = () => {
-    ActionSheetIOS.showShareActionSheetWithOptions(
-      {
-        message: post.data.text ? post.data.text : 'Default message',
-      },
-      ({error}) => {
-        console.log(error)
-      },
-      (result, method) => {
-        console.log('result: ', result)
-        console.log('method: ', method)
-      }
-    )
-  }
+  
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerPost}>
-        <TouchableOpacity style={styles.headerAuthor}>
-          <View style={{backgroundColor: '#e1e1e1', ...styles.avatar}}>
-            <Image source={{uri: post.author.avatar}} style={styles.avatar} />
-          </View>
-          <View>
-            <Text style={styles.authorName}>{post.author.first_name + ' ' + post.author.last_name}</Text>
-            <Text style={styles.postCreated}>{post.created_at}</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={showOptions} style={styles.headerOptions}>
-          <Ionicons name="ellipsis-horizontal-sharp" size={23} color="grey" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Body */}
-      <TouchableOpacity onPress={() => goToPost(post.id)}>
-        <>
-          { post.data.text && <Text style={styles.textBody}>{post.data.text}</Text> }
-        </>
-      </TouchableOpacity>
-      
-      <TouchableOpacity onPress={() => setModalVisible(true)}>
-        <>
-          { post.data.image &&
-            <View style={{width: screenWidth, height: imgHeight, backgroundColor: '#e1e1e1'}}>
-              <Image source={{uri: post.data.image}} style={{width: screenWidth, height: imgHeight}} />
+    <PostItemContext.Provider value={postItem}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.headerPost}>
+          <TouchableOpacity style={styles.headerAuthor}>
+            <View style={{backgroundColor: '#e1e1e1', ...styles.avatar}}>
+              <Image source={{uri: postItem.author.avatar}} style={styles.avatar} />
             </View>
-          }
-        </>
-      </TouchableOpacity>
-
-      {/* Footer */}
-      <View style={styles.actionsContainer}>
-        <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity style={post.liked ? styles.actionLike : styles.actionNoLike} onPress={like}>
-            <Ionicons style={{paddingTop: 1}}  name="md-heart-outline" size={23} color={post.liked ? "red" : "grey"} />
-            { post.likes_count !== 0 && <Text style={styles.actionTextLike}>{post.likes_count}</Text> }
+            <View>
+              <Text style={styles.authorName}>{postItem.author.first_name + ' ' + postItem.author.last_name}</Text>
+              <Text style={styles.postCreated}>{postItem.created_at}</Text>
+            </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionComment}
-            onPress={() => goToPost(post.id, true, imgHeight)}
-          >
-            <Ionicons style={{paddingTop: 3}} name="md-chatbox-outline" size={23} color="grey" />
-            { post.comments_count !== 0 && <Text style={styles.actionTextComment}>{post.comments_count}</Text> }          
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionShare} onPress={toShare}>
-            <Ionicons style={{paddingTop: 2}} name="arrow-redo-outline" size={23} color="grey" />
-            {/* TODO: Сделать репосты на бекенде
-            { post.reposts_count !== 0 && <Text style={styles.actionTextShare}>{post.reposts_count}</Text> } */}
+          <TouchableOpacity onPress={() => showOptions(postItem)} style={styles.headerOptions}>
+            <Ionicons name="ellipsis-horizontal-sharp" size={23} color="grey" />
           </TouchableOpacity>
         </View>
+
+        {/* Body */}
+        <TouchableWithoutFeedback onPress={() => goToPost(postItem.id, postItem)}>
+          <>
+            { postItem.data.text && <Text style={styles.textBody}>{postItem.data.text}</Text> }
+          </>
+        </TouchableWithoutFeedback>
         
-        <View style={{flexDirection: 'row'}}>
-          <Octicons name="eye" size={18} color="#c0c5cc" />
-          <Text style={{color: '#c0c5cc', marginLeft: 4}}>{post.views}</Text>
+        <TouchableOpacity onPress={() => showImageViewer(postItem)}>
+          <>
+            { postItem.data.image &&
+              <View style={{width: screenWidth, height: imgHeight, backgroundColor: '#e1e1e1'}}>
+                <Image source={{uri: postItem.data.image}} style={{width: screenWidth, height: imgHeight}} />
+              </View>
+            }
+          </>
+        </TouchableOpacity>
+
+        {/* Footer */}
+        <View style={styles.actionsContainer}>
+          <View style={{flexDirection: 'row'}}>
+            <TouchableOpacity style={postItem.liked ? styles.actionLike : styles.actionNoLike} onPress={() => like(postItem.id)}>
+              <Ionicons style={{paddingTop: 1}}  name="md-heart-outline" size={23} color={postItem.liked ? "red" : "grey"} />
+              { postItem.likes_count !== 0 && <Text style={styles.actionTextLike}>{postItem.likes_count}</Text> }
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionComment}
+              onPress={() => goToPost(postItem.id, postItem, true, imgHeight)}
+            >
+              <Ionicons style={{paddingTop: 3}} name="md-chatbox-outline" size={23} color="grey" />
+              { postItem.comments_count !== 0 ? <Text style={styles.actionTextComment}>{postItem.comments_count}</Text> : null }          
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionShare} onPress={() => toShare(postItem)}>
+              <Ionicons style={{paddingTop: 2}} name="arrow-redo-outline" size={23} color="grey" />
+              {/* TODO: Сделать репосты на бекенде
+              { post.reposts_count !== 0 && <Text style={styles.actionTextShare}>{post.reposts_count}</Text> } */}
+            </TouchableOpacity>
+          </View>
+          
+          <View style={{flexDirection: 'row'}}>
+            <Octicons name="eye" size={18} color="#c0c5cc" />
+            <Text style={{color: '#c0c5cc', marginLeft: 4}}>{postItem.views}</Text>
+          </View>
         </View>
       </View>
-
-      {/* Modal */}
-      <ModalImageViewer
-        post={post}
-        modalVisible={modalVisible}
-        like={like}
-        toShare={toShare}
-        showOptions={showOptions}
-        setModalVisible={setModalVisible}
-        screenWidth={screenWidth}
-        goToComments={goToPost}
-      />
-    </View>
+    </PostItemContext.Provider>
   )
 }
 
 export default PostItem
 
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   container: {
     backgroundColor: 'white'
   },

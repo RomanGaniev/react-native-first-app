@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
-export const ExploreScreen = () => {
+const FriendsScreen = () => {
     return (
       <View style={styles.container}>
         <Text>ExploreScreen</Text>
@@ -13,7 +13,7 @@ export const ExploreScreen = () => {
     );
 };
 
-//  default ExploreScreen;
+export default FriendsScreen;
 
 const styles = StyleSheet.create({
   container: {

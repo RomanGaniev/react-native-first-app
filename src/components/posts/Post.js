@@ -1,21 +1,29 @@
-import React, { Component, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ImageBackground, ActionSheetIOS } from 'react-native';
-import { Ionicons, Fontisto, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
+import React, { Component, useState, useEffect, useContext } from 'react'
+import { View, Text, StyleSheet, Image, TouchableOpacity, ImageBackground, ActionSheetIOS } from 'react-native'
+import { Ionicons, Fontisto, MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
 
-import Api from '../../services/api';
-const api = new Api('User');
+import Api from '../../services/api'
+const api = new Api('User')
 import _ from 'lodash'
 
-import { Axios, Pusher } from '../../services/boot';
+import { Axios, Pusher } from '../../services/boot'
 
-import ModalImageViewer from './ModalImageViewer';
+import ModalImageViewer from './ModalImageViewer'
+import { useToggle } from '../../helpers/useToggle'
 
-// let placeholderImage = require('../../../assets/icon.png')
+import { PostContext } from '../../screens/MainTabs/Home/PostScreen'
 
-const Post = ({ post, screenWidth, loadPost, scrollToComments }) => {
+const Post = ({ screenWidth, loadPost, likeProp, scrollToComments }) => {
 
+  // const [post, setPost] = useState(postItem)
   const [imgHeight, setImgHeight] = useState(0)
-  const [modalVisible, setModalVisible] = useState(false)
+  const [modalImageViewerVisible, toggleModalImageViewerVisible] = useToggle(false)
+
+  const post = useContext(PostContext)
+
+  // useEffect(() => {
+  //   setPost(postItem)
+  // }, [postItem])
 
   useEffect(() => {
     if (post.data.image) {
@@ -29,7 +37,8 @@ const Post = ({ post, screenWidth, loadPost, scrollToComments }) => {
   }, [screenWidth])
 
   const like = () => {
-    post.liked = !post.liked
+    // setPost({...post, liked: !post.liked, likes_count: post.liked ? post.likes_count - 1 : post.likes_count + 1})
+    likeProp(post.id)
     api.call('likePost', { post: post.id })
       .then(({ data }) => {
         loadPost(post.id)
@@ -57,7 +66,7 @@ const Post = ({ post, screenWidth, loadPost, scrollToComments }) => {
         if (buttonIndex === 1) {
           // setText('')
           // setImage(null)
-          // toggleModalVisible()
+          // toggleModalImageViewerVisible()
         }
       }
     )
@@ -66,7 +75,7 @@ const Post = ({ post, screenWidth, loadPost, scrollToComments }) => {
   const toShare = () => {
     ActionSheetIOS.showShareActionSheetWithOptions(
       {
-        message: post.data.text
+        message: post.data.text ? post.data.text : 'Default message',
       },
       ({error}) => {
         console.log(error)
@@ -94,7 +103,7 @@ const Post = ({ post, screenWidth, loadPost, scrollToComments }) => {
 
       { post.data.text && <Text style={styles.textBody}>{post.data.text}</Text> }
 
-      <TouchableOpacity onPress={() => setModalVisible(true)}>
+      <TouchableOpacity onPress={toggleModalImageViewerVisible}>
         <>
           { post.data.image &&
             <View style={{width: screenWidth, height: imgHeight, backgroundColor: '#e1e1e1'}}>
@@ -107,7 +116,7 @@ const Post = ({ post, screenWidth, loadPost, scrollToComments }) => {
       <View style={styles.actionsContainer}>
         <View style={{flexDirection: 'row'}}>
         <TouchableOpacity style={post.liked ? styles.actionLike : styles.actionNoLike}>
-          <Ionicons name="md-heart-outline" size={27} color={post.liked ? "red" : "grey"} onPress={() => like()} />
+          <Ionicons name="md-heart-outline" size={27} color={post.liked ? "red" : "grey"} onPress={like} />
           <Text style={styles.actionTextLike}>{post.likes_count ? post.likes_count : null}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionShare} onPress={toShare}>
@@ -125,17 +134,15 @@ const Post = ({ post, screenWidth, loadPost, scrollToComments }) => {
 
       {/* Modal */}
       <ModalImageViewer
+        modalImageViewerVisible={modalImageViewerVisible}
+        toggleModalImageViewerVisible={toggleModalImageViewerVisible}
         post={post}
-        modalVisible={modalVisible}
+        screenWidth={screenWidth}
+        goToComments={scrollToComments}
         like={like}
         toShare={toShare}
         showOptions={showOptions}
-        setModalVisible={setModalVisible}
-        screenWidth={screenWidth}
-        goToComments={() => {
-          scrollToComments(imgHeight)
-          setModalVisible(false)}
-        }
+        imgHeight={imgHeight}
       />
     </View>
   )

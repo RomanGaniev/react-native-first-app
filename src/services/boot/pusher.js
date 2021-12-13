@@ -9,10 +9,10 @@ window.Echo = null
 const echo = async (Token) => {
     if (window.Echo === null) {
         window.Echo = new Echo({
-            authEndpoint : `http://192.168.0.19/broadcasting/auth`,
+            authEndpoint : `http://192.168.0.16/broadcasting/auth`,
             broadcaster: 'pusher',
             key: 'anyKey',
-            wsHost: '192.168.0.19',
+            wsHost: '192.168.0.16',
             wsPort: 6001,
             // cluster: process.env.MIX_PUSHER_APP_CLUSTER,
             forceTLS: false,

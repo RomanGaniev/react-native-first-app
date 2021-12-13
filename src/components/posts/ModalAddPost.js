@@ -26,6 +26,25 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
 
   const [inputAccessoryShown, setInputAccessoryShown] = useState(true);
 
+  const [ userInfo, setUserInfo ] = useState(null)
+
+  useEffect(() => {
+    async function getUserInfo() {
+      let info
+      if (Device.brand) {
+        info = await SecureStore.getItemAsync('user_info')
+        info = JSON.parse(info)
+        setUserInfo(info)
+      } else {
+        info = localStorage.getItem('user_info')
+        info = JSON.parse(info)
+        setUserInfo(info)
+      }
+      // console.log('User info from storage: ', userInfo)
+    }
+    getUserInfo()
+  }, [])
+
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
@@ -136,7 +155,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
                   <MaterialCommunityIcons name="close-circle" size={28} color="#c9c9c9" />
                 </View>
               </TouchableOpacity>
-              <Text style={styles.username}>Роман</Text>
+              <Text style={styles.username}>{userInfo?.first_name}</Text>
               <TouchableOpacity style={styles.button} onPress={() => createPost()} disabled={!(text || image)}>
                 <View style={styles.icon}>
                   <MaterialCommunityIcons name="arrow-up-circle" size={38} color={text || image ? '#2887f5' : 'grey' } />

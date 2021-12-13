@@ -1,4 +1,3 @@
-export { HomeScreen } from './Home/HomeScreen'
-export { DetailsScreen } from './DetailsScreen'
-export { ExploreScreen } from './ExploreScreen'
-export { ProfileScreen } from './ProfileScreen'
+export HomeStackScreen from './Home/HomeStackScreen';
+export MessengerStackScreen from './Messenger/MessengerStackScreen';
+export FriendsScreen from './Friends/FriendsScreen';

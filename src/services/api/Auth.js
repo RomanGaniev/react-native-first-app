@@ -21,5 +21,7 @@ class Auth {
     }
   })
 
+  me = () => axios.get('api/v1/auth/me')
+
 }
 export default Auth

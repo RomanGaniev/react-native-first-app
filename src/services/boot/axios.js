@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import * as SecureStore from 'expo-secure-store';
 
-axios.defaults.baseURL = 'https://cd78-31-8-231-206.ngrok.io';
+axios.defaults.baseURL = 'https://c5ea-185-169-101-125.ngrok.io';
 axios.defaults.headers['Content-Type'] = 'application/json';
 
 axios.interceptors.request.use(config => {
@@ -18,17 +18,17 @@ axios.interceptors.request.use(config => {
   return config;
 });
 
-async function retrieveToken() {
-  let token = "";
-  if (Device.brand) {
-    token = await SecureStore.getItemAsync('access_token');
-  } else {
-    token = localStorage.getItem('access_token');
-  }
-  axios.token = token;
-}
+// async function retrieveToken() {
+//   let token = "";
+//   if (Device.brand) {
+//     token = await SecureStore.getItemAsync('access_token');
+//   } else {
+//     token = localStorage.getItem('access_token');
+//   }
+//   axios.token = token;
+// }
 
-retrieveToken();
+// retrieveToken();
 
 const setToken = (token) => {
   axios.token = token

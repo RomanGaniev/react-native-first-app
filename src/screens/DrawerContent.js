@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import {
     useTheme,
@@ -21,11 +21,33 @@ import { Ionicons, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { AuthContext } from '../states/auth/authContext';
 
+import * as SecureStore from 'expo-secure-store';
+import * as Device from 'expo-device';
+
 export function DrawerContent(props) {
 
-    const paperTheme = useTheme();
+    const paperTheme = useTheme()
 
-    const { signOut, toggleTheme } = React.useContext(AuthContext);
+    const { signOut, toggleTheme } = React.useContext(AuthContext)
+
+    const [ userInfo, setUserInfo ] = useState(null)
+
+    useEffect(() => {
+        async function getUserInfo() {
+        let info
+        if (Device.brand) {
+            info = await SecureStore.getItemAsync('user_info')
+            info = JSON.parse(info)
+            setUserInfo(info)
+        } else {
+            info = localStorage.getItem('user_info')
+            info = JSON.parse(info)
+            setUserInfo(info)
+        }
+        // console.log('User info from storage: ', userInfo)
+        }
+        getUserInfo()
+    }, [])
 
     return(
         <View style={{flex:1}}>
@@ -33,19 +55,22 @@ export function DrawerContent(props) {
                 <View style={styles.drawerContent}>
                     <View style={styles.userInfoSection}>
                         <View style={{flexDirection:'row',marginTop: 15}}>
-                            <Avatar.Image 
-                                source={{
-                                    uri: 'https://api.adorable.io/avatars/50/abott@adorable.png'
-                                }}
-                                size={50}
-                            />
+                            <View style={{backgroundColor: '#e1e1e1', ...styles.avatar}}>
+                                <Avatar.Image 
+                                    source={{
+                                        uri: userInfo?.avatar
+                                    }}
+                                    style={{backgroundColor: '#e1e1e1'}}
+                                    size={50}
+                                />
+                            </View>
                             <View style={{marginLeft:15, flexDirection:'column'}}>
-                                <Title style={styles.title}>Имя Фамилия</Title>
-                                <Caption style={styles.caption}>@login</Caption>
+                                <Title style={styles.title}>{userInfo?.first_name + ' ' + userInfo?.last_name}</Title>
+                                <Caption style={styles.caption}>{userInfo?.email}</Caption>
                             </View>
                         </View>
 
-                        <View style={styles.row}>
+                        {/* <View style={styles.row}>
                             <View style={styles.section}>
                                 <Paragraph style={[styles.paragraph, styles.caption]}>80</Paragraph>
                                 <Caption style={styles.caption}>Подписок</Caption>
@@ -54,7 +79,7 @@ export function DrawerContent(props) {
                                 <Paragraph style={[styles.paragraph, styles.caption]}>100</Paragraph>
                                 <Caption style={styles.caption}>Подписчиков</Caption>
                             </View>
-                        </View>
+                        </View> */}
                     </View>
 
                     <Drawer.Section style={styles.drawerSection}>
@@ -69,7 +94,7 @@ export function DrawerContent(props) {
                             label="Домой"
                             onPress={() => {props.navigation.navigate('Home')}}
                         />
-                        <DrawerItem 
+                        {/* <DrawerItem 
                             icon={({color, size}) => (
                                 <MaterialCommunityIcons 
                                 name="face-profile" 
@@ -78,8 +103,8 @@ export function DrawerContent(props) {
                                 />
                             )}
                             label="Профиль"
-                            onPress={() => {props.navigation.navigate('Profile')}}
-                        />
+                            onPress={() => {props.navigation.navigate('Messenger')}}
+                        /> */}
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <MaterialCommunityIcons 
@@ -114,7 +139,7 @@ export function DrawerContent(props) {
                             onPress={() => {props.navigation.navigate('SupportScreen')}}
                         />
                     </Drawer.Section>
-                    <Drawer.Section title="Плюшки">
+                    {/* <Drawer.Section title="Плюшки">
                         <TouchableRipple onPress={() => {toggleTheme()}}>
                             <View style={styles.preference}>
                                 <Text>Тёмная тема</Text>
@@ -123,16 +148,16 @@ export function DrawerContent(props) {
                                 </View>
                             </View>
                         </TouchableRipple>
-                    </Drawer.Section>
+                    </Drawer.Section> */}
                 </View>
             </DrawerContentScrollView>
             <Drawer.Section style={styles.bottomDrawerSection}>
                 <DrawerItem 
                     icon={({color, size}) => (
                         <MaterialCommunityIcons 
-                        name="logout" 
-                        color="red"
-                        size={size}
+                            name="logout" 
+                            color="red"
+                            size={size}
                         />
                     )}
                     label="Выйти"
@@ -186,5 +211,11 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       paddingVertical: 12,
       paddingHorizontal: 16,
+    },
+    avatar: {
+        width: 50,
+        height: 50,
+        // marginRight: 11,
+        borderRadius: 50
     },
   });
