@@ -1,18 +1,30 @@
-import React, { useEffect, useState, useRef, useCallback, createContext } from 'react';
-import { View, Text, Button, StyleSheet, SafeAreaView, ScrollView, RefreshControl, TextInput, InputAccessoryView, TouchableOpacity, ActionSheetIOS } from 'react-native';
-import { ActivityIndicator } from 'react-native-paper';
-import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import Post from '../../../components/posts/Post';
-import Comment from '../../../components/posts/Comment';
-
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  createContext
+} from 'react';
+import {
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  RefreshControl,
+  ActionSheetIOS
+} from 'react-native';
+import Post from '../../../components/post/Post';
+import { Comment } from '../../../components/post/Comment';
 import { Axios } from '../../../services/boot'
 import Api from '../../../services/api';
 const api = new Api('User');
 import _ from 'lodash'
 import moment from 'moment';
 import 'moment/locale/ru';
-
 import { Dimensions } from 'react-native';
+import { Separator } from '../../../components/Separator';
+import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator';
+import { CommentAddingForm } from '../../../components/CommentAddingForm';
 
 export const PostContext = createContext()
 
@@ -34,7 +46,6 @@ export const PostScreen = ({route, navigation}) => {
   const scrollRef = useRef();
 
   useEffect(() => {
-    // showPost()
     showComments()
     setScreenWidth(Dimensions.get('window').width)
     console.log('post: ', post)
@@ -73,7 +84,6 @@ export const PostScreen = ({route, navigation}) => {
   const showPost = () => {
     api.call('showOnePost', { id: postId })
       .then(({ data }) => {
-        // console.log('data: ', data)
         data.created_at = moment(data.created_at).fromNow().toString()
         setPost(data)
       })
@@ -123,8 +133,7 @@ export const PostScreen = ({route, navigation}) => {
   }
 
   const scrollToComments = () => {
-    // 110 без текста
-    // 138 с текстом
+    // 110px with text, 138px without text
     console.log('imgHeight', imgHeight)
     let a = imgHeight + 110
     if (post.data.text) {
@@ -137,24 +146,54 @@ export const PostScreen = ({route, navigation}) => {
     
   }
 
-  const handleLike = (post_id) => {
-    // // setPost({...postItem, liked: !postItem.liked, likes_count: postItem.liked ? postItem.likes_count - 1 : postItem.likes_count + 1})
-    // const new_posts = posts.map((post) => {
-    //   if (post.id === post_id) {
-    //     return {...post, liked: !post.liked, likes_count: post.liked ? post.likes_count - 1 : post.likes_count + 1} //return new data of new post
-    //   } else {
-    //     return {...post} //return old post
-    //   }
-    // })
-    // setPosts(new_posts)
+  const like = () => {
+    setPost({
+      ...post,
+      liked: !post.liked,
+      likes_count: post.liked ? post.likes_count - 1 : post.likes_count + 1
+    })
+    api.call('likePost', { post: post.id })
+      .then(({ data }) => {
+        loadPost(post.id)
+      })
+      .catch(error => {
+        //
+      })
+      .finally(() => {
+        //
+      })
+  }
+
+  const showOptions = () => {
+    ActionSheetIOS.showActionSheetWithOptions({
+      options: ['Отмена', 'Сохранить в закладках', 'Уведомлять о новых записях', 'Скопировать ссылку'],
+      cancelButtonIndex: 0,
+      tintColor: '#2887f5',
+    },
+    buttonIndex => {
+      if (buttonIndex === 1) {
+        //
+      }
+    })
+  }
+
+  const toShare = () => {
+    ActionSheetIOS.showShareActionSheetWithOptions({
+      message: post.data.text ? post.data.text : 'Default message',
+    },
+    ({error}) => {
+      console.log(error)
+    },
+    (result, method) => {
+      console.log('result: ', result)
+      console.log('method: ', method)
+    })
   }
 
   return (
     <>
       { isLoading ?
-          <View style={styles.spinner}>
-            <ActivityIndicator size="small" color="grey" />
-          </View>
+          <CustomActivityIndicator size='small' color='grey' />
         :
           <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
             <ScrollView
@@ -167,23 +206,22 @@ export const PostScreen = ({route, navigation}) => {
                 <PostContext.Provider value={post}>
                   <Post
                     screenWidth={screenWidth}
-                    loadPost={showPost}
-                    likeProp={handleLike}
                     scrollToComments={scrollToComments}
                     imgHeight={imgHeight}
+                    showOptions={showOptions}
+                    like={like}
+                    toShare={toShare}
                   />
                 </PostContext.Provider>
               { post.comments_count !== 0 ?
                 <>
-                  <View style={styles.separator} />
-                  <Text style={{fontSize: 14, color: 'grey', fontWeight: '600', paddingLeft: 10, paddingTop: 5, paddingBottom: 10}}>{post.comments_count + ' ' + textComments}</Text>
+                  <Separator height={1} color='#e1e1e1' />
+                  <Text style={styles.textCommentsCount}>{post.comments_count + ' ' + textComments}</Text>
                 </>
                 : null
               }
               { isLoadingComments ?
-                  <View style={styles.spinner}>
-                    <ActivityIndicator size="small" color="grey" />
-                  </View>
+                  <CustomActivityIndicator size='small' color='grey' />
                 : comments.map((item, index) => (
                   <Comment
                     key={'comment-' + index}
@@ -191,27 +229,11 @@ export const PostScreen = ({route, navigation}) => {
                   />
                 ))
               }
-              <InputAccessoryView style={styles.inputAccessoryView}>
-                <View style={styles.buttonsContainer}>
-                  <TouchableOpacity style={{...styles.button}}>
-                    <View style={styles.icon}>
-                      <MaterialCommunityIcons name="plus-circle-outline" size={28} color="#2887f5" />
-                    </View>
-                  </TouchableOpacity>
-                  <TextInput
-                    multiline
-                    placeholder='Ваш комментарий'
-                    placeholderTextColor='grey'
-                    style={styles.input}
-                    value={newComment}
-                    onChangeText={(val) => setNewComment(val)} />
-                  <TouchableOpacity style={{...styles.button}} onPress={() => sendNewComment()} disabled={!newComment}>
-                    <View style={styles.icon}>
-                      <MaterialCommunityIcons name="arrow-up-circle" size={38} color={newComment ? '#2887f5' : 'grey' } />
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </InputAccessoryView>
+              <CommentAddingForm
+                newComment={newComment}
+                setNewComment={setNewComment}
+                sendNewComment={sendNewComment}
+              />
             </ScrollView>
           </SafeAreaView>
       }
@@ -220,48 +242,12 @@ export const PostScreen = ({route, navigation}) => {
 }
 
 const styles = StyleSheet.create({
-  spinner: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  separator: {
-    backgroundColor: '#e1e1e1',
-    height: 1
-  },
-  input: {
-    fontSize: 16,
-    // textAlignVertical: 'center',
-    // textAlign: 'justify',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    lineHeight: 20,
-    backgroundColor: '#efefef',
-    // fontWeight: '300',
-    // marginHorizontal: 14,
-    // marginTop: 7
-    borderWidth: 1,
-    borderColor: '#dfdfdf',
-    borderRadius: 20,
-    flex: 1
-  },
-  icon: {
-    flex: 1,
-    justifyContent: 'center'
-  },
-  button: {
-    paddingHorizontal: 8
-  },
-  inputAccessoryView: {
-    height: 50,
-    backgroundColor: 'white',
-    // marginBottom: 50
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flex: 1,
-    backgroundColor: 'white'
+  textCommentsCount: {
+    fontSize: 14,
+    color: 'grey',
+    fontWeight: '600',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 10
   }
 })

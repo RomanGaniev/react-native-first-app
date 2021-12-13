@@ -1,19 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, Keyboard, InputAccessoryView, Button, ScrollView, TouchableOpacity, Image, ActionSheetIOS, Alert } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, Keyboard, InputAccessoryView, Button, ScrollView, TouchableOpacity, Image, ActionSheetIOS } from 'react-native';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import GestureRecognizer from 'react-native-swipe-gestures';
 import * as ImagePicker from 'expo-image-picker';
 import { Dimensions } from 'react-native';
 import { Platform } from 'react-native';
 
-import Api from '../../services/api';
+import Api from '../services/api';
 const api = new Api('User');
 import _ from 'lodash'
 
 import * as SecureStore from 'expo-secure-store';
 import * as Device from 'expo-device';
-import { Axios, Pusher } from '../../services/boot';
+import { Axios, Pusher } from '../services/boot';
 import { shadow } from 'react-native-paper';
+import { Separator } from './Separator';
 
 const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
   const [text, setText] = useState('');
@@ -107,29 +108,26 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
   }
 
   const close = () => {
-     if (text || image) {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ['Отмена', 'Удалить'],
-          destructiveButtonIndex: 1,
-          cancelButtonIndex: 0,
-          title: 'Все изменения будут потеряны, если вы выйдете',
-          tintColor: '#2887f5'
-          // userInterfaceStyle: 'dark',
-        },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            setText('')
-            setImage(null)
-            toggleModalVisible()
-          }
+    if (text || image) {
+      ActionSheetIOS.showActionSheetWithOptions({
+        options: ['Отмена', 'Удалить'],
+        destructiveButtonIndex: 1,
+        cancelButtonIndex: 0,
+        title: 'Все изменения будут потеряны, если вы выйдете',
+        tintColor: '#2887f5'
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          setText('')
+          setImage(null)
+          toggleModalVisible()
         }
-      )
-     } else {
-        toggleModalVisible()
-        setText('')
-        setImage(null)
-     }
+      })
+    } else {
+      toggleModalVisible()
+      setText('')
+      setImage(null)
+    }
   }
 
   return (
@@ -165,7 +163,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
           </View>
           <View>
             <ScrollView keyboardShouldPersistTaps='always'>
-              <View style={styles.separator}></View>
+              <Separator height={1} color='#ececec' marginHorizontal={15} />
               <View>
                 <TextInput
                   ref={inputRef}
@@ -185,7 +183,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
                   }}/>
                 <InputAccessoryView style={styles.inputAccessoryView} nativeID={inputAccessoryViewID}>
                     <View style={{flex: 1}}>
-                      <View style={styles.separator}></View>
+                      <Separator height={1} color='#ececec' marginHorizontal={15} />
                       <View style={styles.buttonsContainer}>
                         <TouchableOpacity style={styles.button} onPress={pickImage}>
                           <View style={styles.icon}>
@@ -203,7 +201,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
                 { inputAccessoryShown &&
                     <InputAccessoryView style={styles.inputAccessoryView}>
                       <View style={{flex: 1}}>
-                        <View style={styles.separator}></View>
+                        <Separator height={1} color='#ececec' marginHorizontal={15} />
                         <View style={styles.buttonsContainer}>
                           <TouchableOpacity style={styles.button} onPress={pickImage}>
                             <View style={styles.icon}>
@@ -241,11 +239,6 @@ export default ModalAddPost
 const styles = StyleSheet.create({
   header: {
     height: 50
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#ececec',
-    marginHorizontal: 15
   },
   buttonsContainer: {
     flexDirection: 'row',

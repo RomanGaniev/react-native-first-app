@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useContext, useLayoutEffect } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, Modal, SafeAreaView } from 'react-native'
-import { ActivityIndicator } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
 
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { setStatusBarStyle, setStatusBarHidden } from 'expo-status-bar'
 
-import Api from '../../services/api'
+import Api from '../services/api'
 const api = new Api('User')
 import _ from 'lodash'
 
-import { Axios, Pusher } from '../../services/boot'
+import { Axios, Pusher } from '../services/boot'
 
-import { useToggle } from '../../helpers/useToggle'
+import { useToggle } from '../helpers/useToggle'
+import { CustomActivityIndicator } from './CustomActivityIndicator'
 
 const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisible, post, like, toShare, showOptions, screenWidth, goToComments, imgHeight }) => {
 
@@ -83,9 +83,7 @@ const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisib
         enablePreload={true}
         saveToLocalByLongPress={false}
         loadingRender={() =>
-          <View style={styles.spinner}>
-            <ActivityIndicator size="large" color="grey" />
-          </View>
+          <CustomActivityIndicator size='large' color='grey' />
         }
         renderHeader={() => {
           if (headerAndFooterVisible)
@@ -158,11 +156,6 @@ const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisib
 export default ModalImageViewer
 
 const styles = StyleSheet.create({
-  spinner: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
   actionTextLike: {
     color: 'red',
     fontSize: 14,

@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useLayoutEffect } from 'react'
-import { View, SafeAreaView, Text} from 'react-native';
+import { View, SafeAreaView, Text, StyleSheet} from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat'
-
 
 import Api from '../../../services/api';
 const api = new Api('User');
@@ -9,6 +8,7 @@ import _ from 'lodash'
 
 import * as SecureStore from 'expo-secure-store';
 import * as Device from 'expo-device';
+import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator';
 
 export const ChatScreen = ({route, navigation}) => {
 
@@ -65,18 +65,16 @@ export const ChatScreen = ({route, navigation}) => {
   const showMessages = useCallback(() => {
     api.call('showChatMessages', { chat_id: chatId })
       .then(({ data }) => {
-        let ppp = data.data
-        ppp = _.orderBy(ppp, 'createdAt', 'desc')
-        setMessages(ppp)
-        console.log('showChatMessages', ppp)
+        let messages = data.data
+        messages = _.orderBy(messages, 'createdAt', 'desc')
+        // setMessages(messages)
+        console.log('showChatMessages', messages)
       })
       .catch(error => {
         console.log(error)
       })
       .finally(() => {
-        setTimeout(() => {
-          console.log('finally messages:', messages);
-        }, 1000)
+        //
       })
     }, [])
  
@@ -99,22 +97,25 @@ export const ChatScreen = ({route, navigation}) => {
       })
   }, [])
 
+  if (isLoadingUserInfo) {
+    return <CustomActivityIndicator size='large' color='grey' />
+  }
   return (
-    <>
-      { isLoadingUserInfo ?
-        <View style={{backgroundColor: 'green', height: 100}}></View>
-      :
-        <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-          <GiftedChat
-            messages={messages}
-            onSend={newMessages => onSend(newMessages)}
-            user={{
-              _id: userInfo.id,
-            }}
-          />
-        </SafeAreaView>
-        
-      }
-    </>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <GiftedChat
+        messages={messages}
+        onSend={newMessages => onSend(newMessages)}
+        user={{
+          _id: userInfo.id,
+        }}
+        placeholder='Введите ваше сообщение'
+        // renderLoading={() => (
+        //   <CustomActivityIndicator size='large' color='grey' />
+        // )}
+      />
+    </SafeAreaView>
   )
-};
+}
+
+const styles = StyleSheet.create({
+})

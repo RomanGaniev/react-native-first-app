@@ -2,15 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { View, SafeAreaView, StyleSheet, ScrollView, TouchableHighlight } from 'react-native';
 
 import {
-  useTheme,
   Avatar,
   Title,
-  Caption,
-  Paragraph,
-  Drawer,
-  Text,
-  TouchableRipple,
-  Switch
+  Caption
 } from 'react-native-paper';
 import { Entypo } from '@expo/vector-icons';
 

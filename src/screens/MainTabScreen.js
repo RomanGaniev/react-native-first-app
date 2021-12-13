@@ -1,16 +1,10 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet} from 'react-native';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-
-import {
-  Ionicons,
-  Fontisto
-} from '@expo/vector-icons';
+import { Ionicons, Fontisto } from '@expo/vector-icons';
 
 import FriendsScreen from './MainTabs/Friends/FriendsScreen'
-
 import {
   HomeStackScreen,
   MessengerStackScreen
