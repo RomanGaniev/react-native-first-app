@@ -4,15 +4,13 @@ import { StyleSheet} from 'react-native';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Ionicons, Fontisto } from '@expo/vector-icons';
 
-import FriendsScreen from './MainTabs/Friends/FriendsScreen'
-import {
-  HomeStackScreen,
-  MessengerStackScreen
-} from './MainTabs'
+import FriendsScreen from './Friends/FriendsScreen'
+import HomeStackScreen from './Home/HomeStackScreen'
+import MessengerStackScreen from './Messenger/MessengerStackScreen'
 
 const Tab = createBottomTabNavigator();
 
-import { AuthContext } from '../states/auth/authContext';
+import { AuthContext } from '../../states/auth/authDispatchContext';
 
 const MainTabScreen = () => {
   return (

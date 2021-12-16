@@ -24,7 +24,7 @@ import Api from '../../services/api';
 const api = new Api('Auth');
 import _ from 'lodash'
 
-import { AuthContext } from '../../states/auth/authContext';
+import { AuthDispatchContext } from '../../states/auth/authDispatchContext';
 
 export const SignUpScreen = ({navigation}) => {
 
@@ -82,7 +82,7 @@ export const SignUpScreen = ({navigation}) => {
         }
     };
 
-    const { signUp } = React.useContext(AuthContext);
+    const { signUp } = React.useContext(AuthDispatchContext);
 
     const signUpHandle = () => {
         const fd = new FormData()

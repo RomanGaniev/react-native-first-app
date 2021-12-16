@@ -10,7 +10,7 @@ import { Axios, Pusher } from '../../services/boot'
 import ModalImageViewer from '../ModalImageViewer'
 import { useToggle } from '../../helpers/useToggle'
 
-import { PostContext } from '../../screens/MainTabs/Home/PostScreen'
+import { PostContext } from '../../screens/MainTab/Home/PostScreen'
 import { Header } from './Header'
 import { Body } from './Body'
 import { Footer } from './Footer'

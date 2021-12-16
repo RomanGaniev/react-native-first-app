@@ -13,7 +13,7 @@ import { View } from 'react-native-animatable';
 
 const MessengerStack = createStackNavigator();
 
-import { AuthContext } from '../../../states/auth/authContext';
+import { AuthStateContext } from '../../../states/auth/authStateContext';
 
 const MessengerStackScreen = ({navigation}) => {
 

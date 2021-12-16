@@ -8,7 +8,7 @@ import _ from 'lodash'
 
 import * as SecureStore from 'expo-secure-store';
 
-import { AuthContext } from '../../states/auth/authContext';
+import { AuthDispatchContext } from '../../states/auth/authDispatchContext';
 
 export const SignInScreen = ({navigation}) => {
 
@@ -18,7 +18,7 @@ export const SignInScreen = ({navigation}) => {
     refreshing: false
   });
 
-  const { signIn } = React.useContext(AuthContext);
+  const { signIn } = React.useContext(AuthDispatchContext);
 
   let loginHandle = () => {
     if(data.email && data.password) {

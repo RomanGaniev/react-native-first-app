@@ -1,33 +1,63 @@
-import React, { useEffect } from "react"
+import React from 'react';
 
-import { NavigationContainer } from '@react-navigation/native'
-import { CustomActivityIndicator } from './src/components/CustomActivityIndicator'
+const AuthStateContext = React.createContext()
+const AuthDispatchContext = React.createContext();
 
-import MainDrawerScreen from './src/screens/MainDrawerScreen'
-import RootStackScreen from './src/screens/RootStack/RootStackScreen'
+function AuthProvider({children}) {
+  function authReducer(prevState, action) {
+    switch( action.type ) {
+      case 'RETRIEVE_USER': 
+        return {
+          ...prevState,
+          user: {
+            token: action.token,
+            info: action.info
+          },
+          isLoading: false,
+        }
+      case 'LOGIN':
+        return {
+          ...prevState,
+          user: {
+            token: action.token,
+            info: action.info
+          },
+          isLoading: false,
+      }
+      case 'LOGOUT': 
+        return {
+          ...prevState,
+          user: {
+            token: null,
+            info: null
+          },
+          isLoading: false,
+        }
+      case 'REGISTER': 
+        return {
+          ...prevState,
+          user: {
+            token: action.token,
+            info: action.info
+          },
+          isLoading: false,
+        }
+      default: {
+        throw new Error(`Unhandled action type: ${action.type}`)
+      }
+    }
+  }
 
-import { Axios, Pusher } from './src/services/boot'
-import Api from './src/services/api'
-const api = new Api('Auth')
-import _ from 'lodash'
-
-import * as Device from 'expo-device'
-import * as SecureStore from 'expo-secure-store'
-
-import { AuthDispatchContext, AuthStateContext, authReducer } from './src/states/auth'
-
-const App = () => {
-  const initialAuthState = {
+	const initialAuthState = {
     isLoading: true,
     user: {
       token: null,
       info: null
     }
   }
+	const [authState, dispatch] = React.useReducer(authReducer, initialAuthState)
 
-  const [authState, dispatch] = React.useReducer(authReducer, initialAuthState)
-
-  const authContext = React.useMemo(() => ({
+	const authContext = React.useMemo(() => ({
     signIn: async(access_token) => {
       let userInfoData = null
       try {
@@ -71,7 +101,7 @@ const App = () => {
     // userInfo: authState.user.info
   }), [])
 
-  useEffect(() => {
+	useEffect(() => {
     (async () => {
       async function retrieve () {
         // setIsLoading(false);
@@ -107,21 +137,29 @@ const App = () => {
     })()
   }, [])
 
-  if (authState.isLoading) return <CustomActivityIndicator size='large' color='#2887f5' />
-
-  return (
+	return (
     <AuthDispatchContext.Provider value={authContext}>
       <AuthStateContext.Provider value={authState}>
-        <NavigationContainer>
-          { authState.user.token !== null && authState.user.info !== null ?
-            <MainDrawerScreen />
-          :
-            <RootStackScreen />
-          }
-        </NavigationContainer>
+        {children}
       </AuthStateContext.Provider>
     </AuthDispatchContext.Provider>
   )
 }
 
-export default App
+function useAuthState() {
+  const context = React.useContext(AuthStateContext)
+  if (context === undefined) {
+    throw new Error('useAuthState must be used within a AuthProvider')
+  }
+  return context
+}
+
+function useAuthDispatch() {
+  const context = React.useContext(AuthDispatchContext)
+  if (context === undefined) {
+    throw new Error('useAuthDispatch must be used within a AuthProvider')
+  }
+  return context
+}
+
+export {AuthProvider, useAuthState, useAuthDispatch}

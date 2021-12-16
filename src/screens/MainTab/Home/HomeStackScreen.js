@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useContext } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 import {
   Ionicons
@@ -13,30 +13,13 @@ import {
 import { PostScreen } from './PostScreen'
 
 import { View } from 'react-native-animatable';
-
+import { AuthStateContext } from '../../../states/auth';
 
 const HomeStack = createStackNavigator();
 
-import { AuthContext } from '../../../states/auth/authContext';
-
 const HomeStackScreen = ({navigation}) => {
-  const [ user, setUser ] = useState(null)
 
-  const { userInfo } = React.useContext(AuthContext);
-
-  // useEffect(() => {
-  //   setUser(userInfo())
-  //   console.log('user mount HomeStackScreen: ', user);
-  // }, [])
-
-  // useEffect(() => {
-  //   let userInfoCon = userInfo()
-  //   setUser(userInfoCon)
-  //   // setTimeout(() => {
-  //     console.log('user change "authState.userInfo" HomeStackScreen: ', user);
-  //   // }, 1000)
-    
-  // }, [])
+  const { user } = useContext(AuthStateContext)
 
   return(
     <HomeStack.Navigator
@@ -57,9 +40,9 @@ const HomeStackScreen = ({navigation}) => {
           title:'Главная',
           headerShadowVisible: false,
           headerLeft: () => (
-            <TouchableOpacity onPress={() => console.log('userInfo:', userInfo)} style={{paddingHorizontal: 10}}>
+            <TouchableOpacity onPress={navigation.openDrawer} style={{paddingHorizontal: 10}}>
               <View style={{backgroundColor: '#e1e1e1', ...styles.avatar}}>
-                {/* <Image source={{uri: user?.avatar}} style={styles.avatar} /> */}
+                <Image source={{uri: user.info.avatar}} style={styles.avatar} />
               </View>
             </TouchableOpacity>
             // <MaterialCommunityIcons.Button name="menu" size={25} backgroundColor="#ffffff" color="black" onPress={() => navigation.openDrawer()}></MaterialCommunityIcons.Button>
