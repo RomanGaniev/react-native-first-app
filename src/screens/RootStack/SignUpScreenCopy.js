@@ -151,10 +151,7 @@ export const SignUpScreen = ({navigation}) => {
         data.confirm_password &&
         data.password === data.confirm_password) {
       return true
-    } else {
-      return false
-    }
-    data.first_name && data.last_name && data.email && data.password && data.confirm_password && data.password === data.confirm_password
+    } else return false
   }
 
   const emailChange = (val) => {

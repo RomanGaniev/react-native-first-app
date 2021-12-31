@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-axios.defaults.baseURL = 'https://26fa-178-129-246-103.ngrok.io'
+axios.defaults.baseURL = 'https://fa5f-178-129-92-59.ngrok.io'
 axios.defaults.headers['Content-Type'] = 'application/json'
 
+
 axios.interceptors.request.use(config => {
-  if (window.Echo !== null) {
-    config.headers.common['X-Socket-ID'] = window.Echo.socketId()
+
+  if (axios.socketId) {
+    config.headers.common['X-Socket-ID'] = `${axios.socketId}`
   }
+
   if (axios.token) {
     config.headers.common.authorization = `Bearer ${axios.token}`
   }
@@ -19,11 +22,16 @@ const setToken = (token) => {
   axios.token = token
 }
 
-const getToken = (token) => {
-  return axios.token;
+const getToken = () => {
+  return axios.token
+}
+
+const updateSocketId = (socket_id) => {
+  axios.socketId = socket_id
 }
 
 export default {
   setToken,
-  getToken
+  getToken,
+  updateSocketId
 }

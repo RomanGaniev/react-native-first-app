@@ -1,5 +1,6 @@
-import React, { useState, useCallback, useEffect } from 'react'
-import { View, SafeAreaView, StyleSheet, ScrollView, TouchableHighlight } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react'
+import { View, SafeAreaView, StyleSheet, ScrollView, TouchableHighlight, Text, TouchableOpacity } from 'react-native';
+import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator'
 
 import {
   Avatar,
@@ -8,70 +9,171 @@ import {
 } from 'react-native-paper';
 import { Entypo } from '@expo/vector-icons';
 
-import Api from '../../../services/api';
+import Api from '../../../../services/api';
 const api = new Api('User');
 import _ from 'lodash'
 
+import moment from 'moment'
+import 'moment/locale/ru'
+
+import { AuthStateContext } from '../../../states/auth';
+
 export const MessengerScreen = ({navigation}) => {
 
-  const [chats, setChats] = useState([]);
+  const { user } = useContext(AuthStateContext)
+  const [chats, setChats] = useState([])
 
-  const opttt = () => {
-    navigation.setOptions({tabBarStyle: {display: 'none'}})
-  }
+  // const [modalVisible, setModalVisible] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     showChats()
   }, [])
 
   const showChats = () => {
-    // setIsLoading(false)
     api.call('showChats')
       .then(({ data }) => {
-        setChats(data.data)
-        console.log('showChats: ', data)
+        let chats = data.data
+        chats = _.orderBy(chats, 'latest_message.created_at', 'desc')
+        moment.updateLocale('ru', {
+          relativeTime: {
+            future: '%s',
+            past: '%s',
+            s:  '',
+            ss: '%ss',
+            m:  '%dм',
+            mm: '%dм',
+            h:  '%dч',
+            hh: '%dч',
+            d:  '%dд',
+            dd: '%dд',
+            M:  '%dM',
+            MM: '%dM',
+            y:  'г',
+            yy: '%dY'
+          }
+        })
+        let nowDatetime = moment()
+        _.each(chats, (chat) => {
+          if (chat.latest_message) {
+            let createdAt = moment(chat.latest_message.created_at)
+            
+            let prepDate = createdAt.clone().add(1, 'month')
+
+            if(prepDate.isBefore(nowDatetime)) {
+              chat.latest_message.created_at = moment(chat.latest_message.created_at).format('DD MMM').toString()
+            } else {
+              chat.latest_message.created_at = moment(chat.latest_message.created_at).fromNow().toString()
+            }
+          }
+        })
+        setChats(chats)
       })
       .catch(error => {
         console.log(error)
       })
       .finally(() => {
-        //
+        setIsLoading(false)
       })
   }
 
-  const goToChat = (chatId) => {
+  // TODO: Updating the chat list when a message is received!
+
+  // const loadOneChat = () => {
+  //   api.call('showOneChat', { id: chat_id })
+  //     .then(({ data }) => {
+  //       const chat_id = data.id
+  //       const new_chats = chats.map((chat) => {
+  //         if (chat.id === chat_id) {
+  //           return {...data} //return new data of new chat
+  //         } else {
+  //           return {...chat} //return old chat
+  //         }
+  //       })
+  //       setChats(new_chats)
+  //     })
+  //     .catch(error => {
+  //       console.log(error)
+  //     })
+  //     .finally(() => {
+  //       //
+  //     })
+  // }
+
+  const goToChat = (chat) => {
     navigation.navigate("ChatScreen", {
-      chatId: chatId
+      chat: chat
     })
+  }
+  const generateColor = () => {
+    const randomColor = Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, '0')
+    return `#${randomColor}`
+  }
+
+  if (isLoading) {
+    return <CustomActivityIndicator size='small' color='grey' />
+  }
+
+  if (chats.length === 0) {
+    return (
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white'}}>
+        <Text style={{fontSize: 18, color: 'grey', marginBottom: 10}}>Ничего не найдено</Text>
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
+            <Text style={{fontSize: 18, color: '#2887f5', }}>создай чат</Text>
+          </TouchableOpacity>
+          <Text style={{fontSize: 18, color: 'grey'}}> или </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Friends')}>
+            <Text style={{fontSize: 18, color: '#2887f5', }}>напиши другу</Text>
+          </TouchableOpacity>
+        </View>
+        
+      </View>
+    )  
   }
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={{backgroundColor: 'white'}}>
-      { chats.map((item, index) => (
-        <TouchableHighlight onPress={() => goToChat(item.id)} underlayColor="#e1e1e1" key={'chat-' + index}>
-          <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
-            <Avatar.Image 
-              source={{
-                  // uri: userInfo?.avatar
-              }}
-              style={{backgroundColor: '#e1e1e1'}}
-              size={50}
-            />
-            <View style={{marginLeft:15, flexDirection:'column'}}>
-              <Title style={styles.title}>{item.name}</Title>
-              <View style={{flexDirection:'row'}}>
-                <Caption style={styles.caption}>{item.latest_message ? item.latest_message.text : 'нет сообщений...'}</Caption>
-                <Entypo name="dot-single" size={11} color="grey" />
-                <Caption style={styles.captionTime}>{'20ч'}</Caption>
-              </View>
+      <ScrollView contentContainerStyle={{backgroundColor: 'white', flex: 1}}>
+        { chats.map((chat, index) => (
+          <TouchableHighlight onPress={() => goToChat(chat)} underlayColor="#e1e1e1" key={'chat-' + index}>
+            <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
+              { chat.is_private ?
+                  <Avatar.Image 
+                    source={{uri: chat.interlocutor.avatar}}
+                    style={{backgroundColor: '#e1e1e1'}}
+                    size={55}
+                  />
+                :
+                  <View style={[styles.avatar, {backgroundColor: '#2887f5'}]}>
+                    <Text style={{color: 'white', fontWeight: '600', fontSize: 18}}>{chat.name.charAt(0).toUpperCase()}</Text>
+                  </View>
+              }
               
+              <View style={{marginLeft: 12, flexDirection: 'column', flex: 1}}>
+                <Title style={styles.title}>{chat.is_private ? `${chat.interlocutor.first_name} ${chat.interlocutor.last_name}` : chat.name}</Title>
+                <View style={{flexDirection:'row', marginRight: 60}}>
+                  { chat.latest_message?.user_id === user.info.id &&
+                    <Caption numberOfLines={1} style={[styles.caption, {color: '#bebebe'}]}>Вы: </Caption>
+                  }
+                  
+                  <Caption numberOfLines={1} style={[styles.caption, {fontSize: 15, lineHeight: 15}]}>{chat.latest_message ? chat.latest_message.text : 'нет сообщений...'}</Caption>
+                  { chat.latest_message?.created_at ? 
+                    <>
+                      <Entypo name="dot-single" style={{paddingTop: 3}} size={11} color="grey" />
+                      <Caption style={styles.captionTime}>{chat.latest_message.created_at}</Caption>
+                    </>
+                    : null
+                  }
+                  
+                </View>
+                
+              </View>
             </View>
-          </View>
-        </TouchableHighlight>
-          
-        ))
-      }
+          </TouchableHighlight>
+        ))}
       </ScrollView>
     </SafeAreaView>
   )
@@ -79,10 +181,11 @@ export const MessengerScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({
   avatar: {
-      width: 50,
-      height: 50,
-      // marginRight: 11,
-      borderRadius: 50
+      width: 55,
+      height: 55,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center'
   },
   title: {
     fontSize: 16,
@@ -98,7 +201,6 @@ const styles = StyleSheet.create({
   captionTime: {
     fontSize: 14,
     lineHeight: 14,
-    color: 'grey',
-    // paddingBottom: 10
+    color: 'grey'
   },
 });

@@ -1,35 +1,73 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { Ionicons, Octicons } from '@expo/vector-icons';
+import React, {useContext} from 'react'
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native'
+import { Ionicons, Octicons } from '@expo/vector-icons'
 
-export const Footer = ({ post, goToPost, like, toShare, imgHeight, comments }) => (
-  <View style={styles.actionsContainer}>
-    <View style={{flexDirection: 'row'}}>
-      <TouchableOpacity style={post.liked ? styles.actionLike : styles.actionNoLike} onPress={() => like(post.id)}>
-        <Ionicons style={{paddingTop: 1}}  name="md-heart-outline" size={23} color={post.liked ? "red" : "grey"} />
-        { post.likes_count !== 0 && <Text style={styles.actionTextLike}>{post.likes_count}</Text> }
-      </TouchableOpacity>
-      { comments &&
+import { PostContext } from '../../states/post/postContext'
+
+export const Footer = ({
+  goToPost,
+  like,
+  toShare,
+  imgHeight,
+  commentsButtonVisible
+}) => {
+
+  const post = useContext(PostContext)
+
+  return(
+    <View style={styles.actionsContainer}>
+      <View style={{flexDirection: 'row'}}>
         <TouchableOpacity
-          style={styles.actionComment}
-          onPress={() => goToPost(post.id, post, true, imgHeight)}
+          activeOpacity={0.8}
+          style={post.liked ? styles.actionLike : styles.actionNoLike}
+          onPress={() => like(post.id)}
         >
-          <Ionicons style={{paddingTop: 3}} name="md-chatbox-outline" size={23} color="grey" />
-          { post.comments_count !== 0 ? <Text style={styles.actionTextComment}>{post.comments_count}</Text> : null }          
+          <Ionicons
+            style={{paddingTop: 1}}
+            name="md-heart-outline"
+            size={23}
+            color={post.liked ? "red" : "grey"}
+          />
+          { post.likes_count !== 0 && <Text style={styles.actionTextLike}>{post.likes_count}</Text> }
         </TouchableOpacity>
-      }
-      <TouchableOpacity style={styles.actionShare} onPress={() => toShare(post)}>
-        <Ionicons style={{paddingTop: 2}} name="arrow-redo-outline" size={23} color="grey" />
-        {/* TODO: Сделать репосты на бекенде
-        { post.reposts_count !== 0 && <Text style={styles.actionTextShare}>{post.reposts_count}</Text> } */}
-      </TouchableOpacity>
+        { commentsButtonVisible &&
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.actionComment}
+            onPress={() => goToPost(post.id, post, true, imgHeight)}
+          >
+            <Ionicons
+              style={{paddingTop: 3}}
+              name="md-chatbox-outline"
+              size={23} color="grey"
+            />
+            { post.comments_count !== 0 &&
+                <Text style={styles.actionTextComment}>{post.comments_count}</Text>
+            }          
+          </TouchableOpacity>
+        }
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.actionShare}
+          onPress={toShare}
+        >
+          <Ionicons
+            style={{paddingTop: 2}}
+            name="arrow-redo-outline"
+            size={23}
+            color="grey"
+          />
+          {/* TODO: Сделать репосты на бекенде
+          { post.reposts_count !== 0 && <Text style={styles.actionTextShare}>{post.reposts_count}</Text> } */}
+        </TouchableOpacity>
+      </View>
+      <View style={{flexDirection: 'row'}}>
+        <Octicons name="eye" size={18} color="#c0c5cc" />
+        <Text style={{color: '#c0c5cc', marginLeft: 4}}>{post.views}</Text>
+      </View>
     </View>
-    <View style={{flexDirection: 'row'}}>
-      <Octicons name="eye" size={18} color="#c0c5cc" />
-      <Text style={{color: '#c0c5cc', marginLeft: 4}}>{post.views}</Text>
-    </View>
-  </View>
-)
+  )
+}
 
 const styles = StyleSheet.create({
   actionsContainer: {
@@ -41,7 +79,7 @@ const styles = StyleSheet.create({
   },
   actionNoLike: {
     borderRadius: 20,
-    backgroundColor: '#ececec',
+    backgroundColor: '#eeeeee',
     paddingHorizontal: 10,
     height: 35,
     flexDirection: 'row',
@@ -67,7 +105,7 @@ const styles = StyleSheet.create({
   },
   actionComment: {
     borderRadius: 20,
-    backgroundColor: '#ececec',
+    backgroundColor: '#eeeeee',
     paddingHorizontal: 10,
     height: 35,
     flexDirection: 'row',
@@ -84,7 +122,7 @@ const styles = StyleSheet.create({
   },
   actionShare: {
     borderRadius: 20,
-    backgroundColor: '#ececec',
+    backgroundColor: '#eeeeee',
     paddingHorizontal: 10,
     height: 35,
     flexDirection: 'row',

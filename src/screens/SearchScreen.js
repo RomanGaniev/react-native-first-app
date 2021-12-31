@@ -1,34 +1,34 @@
-import React, {useState, useEffect} from 'react'
-import { View, Text, Button, StyleSheet, SafeAreaView, TouchableHighlight, ScrollView } from 'react-native'
-
-import Api from '../../../../services/api';
-const api = new Api('User');
-import _ from 'lodash'
-import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator'
+import React, { useEffect, useState } from 'react'
+import { View, SafeAreaView, ScrollView, StyleSheet, TouchableHighlight } from 'react-native'
 
 import {
   Avatar,
   Title,
-  Caption
-} from 'react-native-paper';
+  Caption,
+  Drawer
+} from 'react-native-paper'
 
-export const FriendsScreen = ({navigation}) => {
+import { CustomActivityIndicator } from '../components/CustomActivityIndicator'
 
-  const [friends, setFriends] = useState([])
+import Api from '../../services/api'
+const api = new Api('User')
+import _ from 'lodash'
+
+const SearchScreen = ({ navigation }) => {
+
+  const [ users, setUsers ] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    showFriends()
+    showUsers()
   }, [])
 
-  const showFriends = () => {
-    api.call('showFriends')
-      .then(({ data }) => {
-        // let friends = data
-        console.log(data.data)
-        setFriends(data.data)
+  const showUsers = () => {
+    api.call('showUsers')
+      .then(({data}) => {
+        setUsers(data.data)
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error)
       })
       .finally(() => {
@@ -48,20 +48,20 @@ export const FriendsScreen = ({navigation}) => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={{backgroundColor: 'white', flex: 1}}>
+      <ScrollView contentContainerStyle={{backgroundColor: 'white'}}>
         { 
         
-          friends.map((friend, index) => (
-            <TouchableHighlight onPress={() => goToUserProfile(friend)} underlayColor="#e1e1e1" key={'friend-' + index}>
+          users.map((user, index) => (
+            <TouchableHighlight onPress={() => goToUserProfile(user)} underlayColor="#e1e1e1" key={'user-' + index}>
               <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
                 <Avatar.Image 
-                  source={{uri: friend.avatar}}
+                  source={{uri: user.avatar}}
                   style={{backgroundColor: '#e1e1e1'}}
                   size={55}
                 />
                 
                 <View style={{marginLeft: 12, flexDirection: 'column', flex: 1}}>
-                  <Title style={styles.title}>{`${friend.first_name} ${friend.last_name}`}</Title>
+                  <Title style={styles.title}>{`${user.first_name} ${user.last_name}`}</Title>
                   <View style={{flexDirection:'row', marginRight: 60}}>
                     
                     <Caption numberOfLines={1} style={[styles.caption, {fontSize: 15, lineHeight: 15}]}>Уфа</Caption>
@@ -72,14 +72,20 @@ export const FriendsScreen = ({navigation}) => {
               </View>
             </TouchableHighlight>
           ))
-
         }
       </ScrollView>
     </SafeAreaView>
   )
 }
 
+export default SearchScreen
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center'
+  },
   container: {
     flex: 1, 
     alignItems: 'center', 

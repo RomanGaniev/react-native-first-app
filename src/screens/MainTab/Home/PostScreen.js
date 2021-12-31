@@ -4,7 +4,7 @@ import React, {
   useRef,
   useCallback,
   createContext
-} from 'react';
+} from 'react'
 import {
   Text,
   StyleSheet,
@@ -12,68 +12,82 @@ import {
   ScrollView,
   RefreshControl,
   ActionSheetIOS
-} from 'react-native';
-import Post from '../../../components/post/Post';
-import { Comment } from '../../../components/post/Comment';
-import { Axios } from '../../../services/boot'
-import Api from '../../../services/api';
-const api = new Api('User');
+} from 'react-native'
+import Post from '../../../components/post/Post'
+import { Comment } from '../../../components/post/Comment'
+import { Axios } from '../../../../services/boot'
+import Api from '../../../../services/api'
+const api = new Api('User')
 import _ from 'lodash'
-import moment from 'moment';
-import 'moment/locale/ru';
-import { Dimensions } from 'react-native';
-import { Separator } from '../../../components/Separator';
-import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator';
-import { CommentAddingForm } from '../../../components/CommentAddingForm';
+import moment from 'moment'
+import 'moment/locale/ru'
+import { Dimensions } from 'react-native'
+import { Separator } from '../../../components/Separator'
+import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator'
+import { CommentAddingForm } from '../../../components/CommentAddingForm'
 
-export const PostContext = createContext()
+import { PostContext } from '../../../states/post/postContext'
+import { View } from 'react-native-animatable'
+// export const PostContext = createContext()
 
 export const PostScreen = ({route, navigation}) => {
 
-  const { postId, toComments, imgHeight, postParam } = route.params
+  const { postId, toComments, imgHeight, screenWidth, postParam } = route.params
 
-  const [ post, setPost ] = useState(postParam);
-  const [ comments, setComments ] = useState([]);
+  const [ post, setPost ] = useState(postParam)
+  const [ comments, setComments ] = useState([])
 
-  const [ screenWidth, setScreenWidth ] = useState(0);
-  const [ refreshing, setRefreshing ] = useState(false);
-  const [ isLoading, setIsLoading ] = useState(true);
-  const [ isLoadingComments, setIsLoadingComments ] = useState(true);
+  // const [ screenWidth, setScreenWidth ] = useState(0)
+  const [ refreshing, setRefreshing ] = useState(false)
+  // const [ isLoading, setIsLoading ] = useState(true)
+  const [ isLoadingComments, setIsLoadingComments ] = useState(true)
 
-  const [ newComment, setNewComment ] = useState('');
-  const [ textComments, setTextComments ] = useState('');
+  const [ newComment, setNewComment ] = useState('')
+  const [ textComments, setTextComments ] = useState('')
 
-  const scrollRef = useRef();
+  const scrollRef = useRef()
+
+  const showPlaceholherForComments = post.comments_count !== 0 && isLoadingComments
 
   useEffect(() => {
     showComments()
-    setScreenWidth(Dimensions.get('window').width)
-    console.log('post: ', post)
-    setIsLoading(false)
+    // setScreenWidth(Dimensions.get('window').width)
+    console.log('PostScreen screenWidth: ', screenWidth)
+    // setIsLoading(false)
+
+    const lastDigit = post.comments_count % 10
+      
+    if (lastDigit === 1) {
+      setTextComments('КОММЕНТАРИЙ')
+    } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
+      setTextComments('КОММЕНТАРИЯ')
+    } else {
+      setTextComments('КОММЕНТАРИЕВ')
+    }
   },[])
 
-  useEffect(() => {
-    if (!isLoading) {
-      const lastDigit = post.comments_count % 10
+  // useEffect(() => {
+  //   if (!isLoading) {
+  //     const lastDigit = post.comments_count % 10
       
-      if (lastDigit === 1) {
-        setTextComments('КОММЕНТАРИЙ')
-      } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
-        setTextComments('КОММЕНТАРИЯ')
-      } else {
-        setTextComments('КОММЕНТАРИЕВ')
-      }
-    }
+  //     if (lastDigit === 1) {
+  //       setTextComments('КОММЕНТАРИЙ')
+  //     } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
+  //       setTextComments('КОММЕНТАРИЯ')
+  //     } else {
+  //       setTextComments('КОММЕНТАРИЕВ')
+  //     }
+  //   }
     
-  },[isLoading])
+  // },[isLoading])
 
   useEffect(() => {
-    if(!isLoading && !isLoadingComments && post.comments_count !== 0) {
+    if(post.comments_count !== 0) {
       if (toComments) {
         scrollToComments()
       }
     }
-  },[isLoading, isLoadingComments])
+  }, [isLoadingComments])
 
   const onRefresh = useCallback(() => {
     setRefreshing(true)
@@ -86,12 +100,14 @@ export const PostScreen = ({route, navigation}) => {
       .then(({ data }) => {
         data.created_at = moment(data.created_at).fromNow().toString()
         setPost(data)
+        
+        setRefreshing(false)
       })
       .catch(error => {
         console.log(error)
       })
       .finally(() => {
-        setIsLoading(false)
+        // setIsLoading(false)
         setRefreshing(false)
       })
   }
@@ -133,111 +149,76 @@ export const PostScreen = ({route, navigation}) => {
   }
 
   const scrollToComments = () => {
-    // 110px with text, 138px without text
-    console.log('imgHeight', imgHeight)
-    let a = imgHeight + 110
-    if (post.data.text) {
-      a = a + 28
+    let scrollHeight = 110
+    if (post.data.image) {
+      scrollHeight = scrollHeight + imgHeight
     }
-    setTimeout(() => {
-      scrollRef.current?.scrollTo({y: a, animated: true})
-      console.log('scrollingggg: ', a)
-    }, 900)
-    
+    if (post.data.text) {
+      scrollHeight = scrollHeight + 28
+    }
+    scrollRef.current.scrollTo({y: scrollHeight, animated: false})
   }
 
-  const like = () => {
+  const onLike = () => {
     setPost({
       ...post,
       liked: !post.liked,
       likes_count: post.liked ? post.likes_count - 1 : post.likes_count + 1
     })
-    api.call('likePost', { post: post.id })
-      .then(({ data }) => {
-        loadPost(post.id)
-      })
-      .catch(error => {
-        //
-      })
-      .finally(() => {
-        //
-      })
   }
 
-  const showOptions = () => {
-    ActionSheetIOS.showActionSheetWithOptions({
-      options: ['Отмена', 'Сохранить в закладках', 'Уведомлять о новых записях', 'Скопировать ссылку'],
-      cancelButtonIndex: 0,
-      tintColor: '#2887f5',
-    },
-    buttonIndex => {
-      if (buttonIndex === 1) {
-        //
-      }
-    })
-  }
-
-  const toShare = () => {
-    ActionSheetIOS.showShareActionSheetWithOptions({
-      message: post.data.text ? post.data.text : 'Default message',
-    },
-    ({error}) => {
-      console.log(error)
-    },
-    (result, method) => {
-      console.log('result: ', result)
-      console.log('method: ', method)
-    })
-  }
+  // if (isLoading) {
+  //   return <CustomActivityIndicator size='small' color='grey' />
+  // }
 
   return (
-    <>
-      { isLoading ?
-          <CustomActivityIndicator size='small' color='grey' />
-        :
-          <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
-            <ScrollView
-              ref={scrollRef}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh} />
-              }>
-                <PostContext.Provider value={post}>
-                  <Post
-                    screenWidth={screenWidth}
-                    scrollToComments={scrollToComments}
-                    imgHeight={imgHeight}
-                    showOptions={showOptions}
-                    like={like}
-                    toShare={toShare}
-                  />
-                </PostContext.Provider>
-              { post.comments_count !== 0 ?
-                <>
-                  <Separator height={1} color='#e1e1e1' />
-                  <Text style={styles.textCommentsCount}>{post.comments_count + ' ' + textComments}</Text>
-                </>
-                : null
-              }
-              { isLoadingComments ?
-                  <CustomActivityIndicator size='small' color='grey' />
-                : comments.map((item, index) => (
-                  <Comment
-                    key={'comment-' + index}
-                    comment={item}
-                  />
-                ))
-              }
-              <CommentAddingForm
-                newComment={newComment}
-                setNewComment={setNewComment}
-                sendNewComment={sendNewComment}
-              />
-            </ScrollView>
-          </SafeAreaView>
-      }
-    </>
+    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
+      <ScrollView
+        ref={scrollRef}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh} />
+        }>
+          <PostContext.Provider value={post}>
+            <Post
+              screenWidth={screenWidth}
+              imgHeightParam={imgHeight}
+              scrollToComments={scrollToComments}
+              onLike={onLike}
+              loadOnePost={showPost}
+              optionsButtonVisible={false}
+              commentsButtonVisible={false}
+            />
+          </PostContext.Provider>
+        { post.comments_count !== 0 ?
+          <>
+            <Separator height={1} color='#e1e1e1' />
+            <Text style={styles.textCommentsCount}>{post.comments_count + ' ' + textComments}</Text>
+          </>
+          : null
+        }
+        { isLoadingComments ?
+            <CustomActivityIndicator size='small' color='grey' />
+          : comments.map((item, index) => (
+            <Comment
+              key={'comment-' + index}
+              comment={item}
+            />
+          ))
+        }
+        {/* { showPlaceholherForComments && <View style={{height: 500}}></View> } */}
+        
+      </ScrollView>
+      {/* <View style={{backgroundColor: 'green'}}> */}
+        <CommentAddingForm
+          newComment={newComment}
+          setNewComment={setNewComment}
+          sendNewComment={sendNewComment}
+        />
+      {/* </View> */}
+      
+    </SafeAreaView>
   )
 }
 

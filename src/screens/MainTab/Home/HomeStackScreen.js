@@ -1,19 +1,20 @@
-import React, { useContext } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useContext } from 'react'
+import { createStackNavigator } from '@react-navigation/stack'
+import { StyleSheet, TouchableOpacity, Image } from 'react-native'
 
 import {
   Ionicons
-} from '@expo/vector-icons';
+} from '@expo/vector-icons'
 
 import {
   HomeScreen
 } from './HomeScreen'
 
 import { PostScreen } from './PostScreen'
+import MyProfileScreen from '../../MyProfileScreen'
 
-import { View } from 'react-native-animatable';
-import { AuthStateContext } from '../../../states/auth';
+import { View } from 'react-native-animatable'
+import { AuthStateContext } from '../../../states/auth'
 
 const HomeStack = createStackNavigator();
 
@@ -25,7 +26,8 @@ const HomeStackScreen = ({navigation}) => {
     <HomeStack.Navigator
       screenOptions={{
         headerStyle: {
-        backgroundColor: '#ffffff',
+          backgroundColor: '#ffffff',
+          height: 70
         },
         headerTintColor: 'black',
         headerTitleStyle: {
@@ -70,6 +72,21 @@ const HomeStackScreen = ({navigation}) => {
               <Ionicons name="ellipsis-horizontal-sharp" size={23} color="#2887f5" />
             </TouchableOpacity>
           )
+        }}
+      />
+      <HomeStack.Screen
+        name="MyProfileScreen"
+        component={MyProfileScreen}
+        options={{
+          title: user.info.email,
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          headerTintColor: '#2887f5',
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: 21,
+            color: 'black'
+          }
         }}
       />
     </HomeStack.Navigator>

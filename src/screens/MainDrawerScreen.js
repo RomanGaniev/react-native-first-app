@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 
 import MainTabScreen from './MainTab/MainTabScreen'
-import SupportScreen from '../screens/SupportScreen'
+import SearchScreen from '../screens/SearchScreen'
 import SettingsScreen from '../screens/SettingsScreen'
 import BookmarkScreen from '../screens/BookmarkScreen'
 
@@ -19,8 +19,7 @@ const MainDrawerScreen = () => {
       drawerContent={props => <DrawerContent {...props} />}
     >
       <Drawer.Screen name="HomeDrawer" component={MainTabScreen} />
-      {/* <Drawer.Screen name="ChatScreen" component={ChatScreen} /> */}
-      <Drawer.Screen name="SupportScreen" component={SupportScreen} />
+      <Drawer.Screen name="SearchScreen" component={SearchScreen} />
       <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
       <Drawer.Screen name="BookmarkScreen" component={BookmarkScreen} />
     </Drawer.Navigator>

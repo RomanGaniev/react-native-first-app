@@ -6,8 +6,9 @@ import { CustomActivityIndicator } from './src/components/CustomActivityIndicato
 import MainDrawerScreen from './src/screens/MainDrawerScreen'
 import RootStackScreen from './src/screens/RootStack/RootStackScreen'
 
-import { Axios, Pusher } from './src/services/boot'
-import Api from './src/services/api'
+import { Axios, Echo } from './services/boot'
+// import echo from './services/boot/pusherTest'
+import Api from './services/api'
 const api = new Api('Auth')
 import _ from 'lodash'
 
@@ -63,12 +64,7 @@ const App = () => {
         console.log(e)
       }
       dispatch({ type: 'LOGOUT' })
-    },
-    signUp: () => {
-      //
-    },
-    userInfo: () => authState.user.info
-    // userInfo: authState.user.info
+    }
   }), [])
 
   useEffect(() => {
@@ -85,23 +81,24 @@ const App = () => {
           }
   
           Axios.setToken(userToken)
-  
-          await api.call('me')
+          
+          api.call('me')
             .then(({ data }) => {
               userInfoData = data.data
+              
             })
             .catch(error => {
               console.log(error)
             })
             .finally(() => {
-              //            
-            })
+              dispatch({ type: 'RETRIEVE_USER', token: userToken, info: userInfoData })
+            })          
   
         } catch(e) {
           console.log(e)
         }
         
-        dispatch({ type: 'RETRIEVE_USER', token: userToken, info: userInfoData })
+        
       }
       await retrieve()
     })()

@@ -5,22 +5,26 @@ import { Ionicons } from '@expo/vector-icons'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { setStatusBarStyle, setStatusBarHidden } from 'expo-status-bar'
 
-import Api from '../services/api'
+import Api from '../../services/api'
 const api = new Api('User')
 import _ from 'lodash'
 
-import { Axios, Pusher } from '../services/boot'
+// import { Axios, Pusher } from '../../services/boot'
 
-import { useToggle } from '../helpers/useToggle'
+import { useToggle } from '../../services/helpers/useToggle'
 import { CustomActivityIndicator } from './CustomActivityIndicator'
 
-const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisible, post, like, toShare, showOptions, screenWidth, goToComments, imgHeight }) => {
+import { PostContext } from '../states/post/postContext'
 
+const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisible, like, toShare, showOptions, screenWidth, goToComments, imgHeight }) => {
+
+  const post = useContext(PostContext)
   const [headerAndFooterVisible, toggleHeaderAndFooterVisible] = useToggle(true)
   const [imageUrls, setImageUrls] = useState([])
+  
 
   useEffect(() => {
-    console.log('useEffect(post)')
+    // console.log('useEffect(post)')
     if (post) {
       let prev_urls = [
         {
@@ -37,7 +41,7 @@ const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisib
   }, [post])
 
   useEffect(() => {
-    console.log('useEffect(modalImageViewerVisible)')
+    // console.log('useEffect(modalImageViewerVisible)')
     if (modalImageViewerVisible) {
       setTimeout(() => setStatusBarStyle('light'), 300)
       // if (post) {
@@ -63,7 +67,7 @@ const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisib
   }, [modalImageViewerVisible])
 
   useEffect(() => {
-    console.log('useEffect(headerAndFooterVisible)')
+    // console.log('useEffect(headerAndFooterVisible)')
     if (headerAndFooterVisible) {
       setStatusBarHidden(false, 'fade')
     } else {
@@ -80,7 +84,7 @@ const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisib
         imageUrls={imageUrls}
         onCancel={toggleModalImageViewerVisible}
         enableSwipeDown={true}
-        enablePreload={true}
+        // enablePreload={true}
         saveToLocalByLongPress={false}
         loadingRender={() =>
           <CustomActivityIndicator size='large' color='grey' />

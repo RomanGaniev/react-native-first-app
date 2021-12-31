@@ -1,22 +1,26 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, Keyboard, InputAccessoryView, Button, ScrollView, TouchableOpacity, Image, ActionSheetIOS } from 'react-native';
-import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import GestureRecognizer from 'react-native-swipe-gestures';
-import * as ImagePicker from 'expo-image-picker';
-import { Dimensions } from 'react-native';
-import { Platform } from 'react-native';
+import React, { useEffect, useState, useRef, useContext } from 'react'
+import { View, Text, StyleSheet, Modal, TextInput, Keyboard, InputAccessoryView, Button, ScrollView, TouchableOpacity, Image, ActionSheetIOS } from 'react-native'
+import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
+import GestureRecognizer from 'react-native-swipe-gestures'
+import * as ImagePicker from 'expo-image-picker'
+import { Dimensions } from 'react-native'
+import { Platform } from 'react-native'
 
-import Api from '../services/api';
-const api = new Api('User');
+import Api from '../../services/api'
+const api = new Api('User')
 import _ from 'lodash'
 
-import * as SecureStore from 'expo-secure-store';
-import * as Device from 'expo-device';
-import { Axios, Pusher } from '../services/boot';
-import { shadow } from 'react-native-paper';
-import { Separator } from './Separator';
+import * as SecureStore from 'expo-secure-store'
+import * as Device from 'expo-device'
+import { Axios } from '../../services/boot'
+import { shadow } from 'react-native-paper'
+import { Separator } from './Separator'
+
+import { AuthStateContext } from '../states/auth'
 
 const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
+
+  const { user } = useContext(AuthStateContext)
   const [text, setText] = useState('');
   const [image, setImage] = useState(null);
   const [imgWidth, setImgWidth] = useState(0);
@@ -27,24 +31,6 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
 
   const [inputAccessoryShown, setInputAccessoryShown] = useState(true);
 
-  const [ userInfo, setUserInfo ] = useState(null)
-
-  useEffect(() => {
-    async function getUserInfo() {
-      let info
-      if (Device.brand) {
-        info = await SecureStore.getItemAsync('user_info')
-        info = JSON.parse(info)
-        setUserInfo(info)
-      } else {
-        info = localStorage.getItem('user_info')
-        info = JSON.parse(info)
-        setUserInfo(info)
-      }
-      // console.log('User info from storage: ', userInfo)
-    }
-    getUserInfo()
-  }, [])
 
   useEffect(() => {
     (async () => {
@@ -107,7 +93,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
     }
   }
 
-  const close = () => {
+  const closeModal = () => {
     if (text || image) {
       ActionSheetIOS.showActionSheetWithOptions({
         options: ['Отмена', 'Удалить'],
@@ -139,7 +125,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
           directionalOffsetThreshold: 100,
           gestureIsClickThreshold	: 1
         }}
-        onSwipeDown={() => close()}
+        onSwipeDown={closeModal}
       >
         <Modal
           animationType="slide"
@@ -148,13 +134,13 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
         >
           <View style={styles.header}>
             <View style={styles.buttonsContainer}>
-              <TouchableOpacity style={{width: 62, ...styles.button}} onPress={() => close()}>
+              <TouchableOpacity style={{width: 62, ...styles.button}} onPress={closeModal}>
                 <View style={styles.icon}>
                   <MaterialCommunityIcons name="close-circle" size={28} color="#c9c9c9" />
                 </View>
               </TouchableOpacity>
-              <Text style={styles.username}>{userInfo?.first_name}</Text>
-              <TouchableOpacity style={styles.button} onPress={() => createPost()} disabled={!(text || image)}>
+              <Text style={styles.username}>{user.info.first_name}</Text>
+              <TouchableOpacity style={styles.button} onPress={createPost} disabled={!(text || image)}>
                 <View style={styles.icon}>
                   <MaterialCommunityIcons name="arrow-up-circle" size={38} color={text || image ? '#2887f5' : 'grey' } />
                 </View>
@@ -190,7 +176,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
                             <Feather name="image" size={25} color="grey" />
                           </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={() => Keyboard.dismiss()}>
+                        <TouchableOpacity style={styles.button} onPress={Keyboard.dismiss}>
                           <View style={styles.icon}>
                             <Feather name="chevron-down" size={30} color="grey" />
                           </View>

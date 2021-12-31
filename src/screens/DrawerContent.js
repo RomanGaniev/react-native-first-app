@@ -11,7 +11,7 @@ import {
     DrawerItem
 } from '@react-navigation/drawer'
 
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 
 import { AuthDispatchContext } from '../states/auth/authDispatchContext';
 import { AuthStateContext } from '../states/auth/authStateContext';
@@ -24,26 +24,12 @@ export function DrawerContent(props) {
 	const { signOut } = useContext(AuthDispatchContext)
 	const { user } = useContext(AuthStateContext)
 
-	console.log('context user drawer: ', user)
-
-	// const [ user, setUser ] = useState(null)
-
-	// useEffect(() => {
-	// 		let abc = userInfo()
-	// 		setUser(abc)
-	// }, [])
-
-	// useEffect(() => {
-	// 		let abc = userInfo()
-	// 		setUser(abc)
-	// }, [userInfo])
-
 	return(
 		<View style={{flex:1}}>
-			<DrawerContentScrollView {...props}>
+			<DrawerContentScrollView {...props} >
 				<View style={styles.drawerContent}>
 					<View style={styles.userInfoSection}>
-						<View style={{flexDirection:'row',marginTop: 15}}>
+						<View style={{flexDirection: 'row',marginTop: 15}}>
 							<View style={{backgroundColor: '#e1e1e1', ...styles.avatar}}>
 								<Avatar.Image 
 									source={{
@@ -53,8 +39,8 @@ export function DrawerContent(props) {
 									size={50}
 								/>
 							</View>
-							<View style={{marginLeft:15, flexDirection:'column'}}>
-								<Title style={styles.title}>{user.info.first_name + ' ' + user.info.last_name}</Title>
+							<View style={{marginLeft: 15, flexDirection: 'column'}}>
+								<Title style={styles.title}>{user.info.first_name}</Title>
 								<Caption style={styles.caption}>{user.info.email}</Caption>
 							</View>
 						</View>
@@ -72,6 +58,18 @@ export function DrawerContent(props) {
 					<Drawer.Section style={styles.drawerSection}>
 						<DrawerItem 
 							icon={({color, size}) => (
+								<Octicons 
+									name="octoface" 
+									color="#2887f5"
+									size={28}
+								/>
+							)}
+							label="Мой профиль"
+							labelStyle={{fontSize: 17, fontWeight: '400', color: 'black'}}
+							onPress={() => {props.navigation.navigate('MyProfileScreen')}}
+						/>
+						{/* <DrawerItem 
+							icon={({color, size}) => (
 									<Ionicons 
 										name="ios-home-outline" 
 										color="black"
@@ -80,41 +78,32 @@ export function DrawerContent(props) {
 							)}
 							label="Домой"
 							onPress={() => {props.navigation.navigate('Home')}}
-						/>
+						/> */}
 						<DrawerItem 
 							icon={({color, size}) => (
-								<MaterialCommunityIcons 
-									name="face-profile" 
-									color="black"
-									size={size}
+								<Ionicons 
+									name="bookmark-outline" 
+									color="#2887f5"
+									size={28}
 								/>
 							)}
-							label="Инфо пользователя"
-							onPress={() => console.log('userInfo', user.info)}
-						/>
-						<DrawerItem 
-							icon={({color, size}) => (
-								<MaterialCommunityIcons 
-									name="bookmark-multiple-outline" 
-									color="black"
-									size={size}
-								/>
-							)}
-							label="Избранное"
+							label="Закладки"
+							labelStyle={{fontSize: 17, fontWeight: '400', color: 'black'}}
 							onPress={() => {props.navigation.navigate('BookmarkScreen')}}
 						/>
 						<DrawerItem 
 							icon={({color, size}) => (
 								<Ionicons 
-									name="settings-outline" 
-									color="black"
-									size={size}
+									name="search-outline" 
+									color="#2887f5"
+									size={28}
 								/>
 							)}
-							label="Настройки"
-							onPress={() => {props.navigation.navigate('SettingsScreen')}}
+							label="Поиск"
+							labelStyle={{fontSize: 17, fontWeight: '400', color: 'black'}}
+							onPress={() => {props.navigation.navigate('SearchScreen')}}
 						/>
-						<DrawerItem 
+						{/* <DrawerItem 
 							icon={({color, size}) => (
 								<Ionicons 
 									name="help-circle-outline" 
@@ -123,7 +112,19 @@ export function DrawerContent(props) {
 								/>
 							)}
 							label="Помощь"
-							onPress={() => {props.navigation.navigate('SupportScreen')}}
+							onPress={() => {props.navigation.navigate('SearchScreen')}}
+						/> */}
+						<DrawerItem 
+							icon={({color, size}) => (
+								<Ionicons 
+									name="settings-outline" 
+									color="#2887f5"
+									size={28}
+								/>
+							)}
+							label="Настройки"
+							labelStyle={{fontSize: 17, fontWeight: '400', color: 'black'}}
+							onPress={() => {props.navigation.navigate('SettingsScreen')}}
 						/>
 					</Drawer.Section>
 				</View>
@@ -134,11 +135,15 @@ export function DrawerContent(props) {
 						<MaterialCommunityIcons 
 							name="logout" 
 							color="red"
-							size={size}
+							size={28}
 						/>
 					)}
 					label="Выйти"
-					onPress={signOut}
+					labelStyle={{fontSize: 17, fontWeight: '400', color: 'black'}}
+					onPress={() => {
+						props.navigation.closeDrawer()
+						signOut()
+					}}
 				/>
 			</Drawer.Section>
 		</View>
@@ -150,12 +155,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	userInfoSection: {
-		paddingLeft: 20,
+		paddingLeft: 14,
 	},
 	title: {
-		fontSize: 16,
-		marginTop: 3,
-		fontWeight: 'bold',
+		fontSize: 19,
+		marginTop: 0,
+		fontWeight: '600',
 	},
 	caption: {
 		fontSize: 14,
@@ -176,12 +181,9 @@ const styles = StyleSheet.create({
 		marginRight: 3,
 	},
 	drawerSection: {
-		marginTop: 15,
+		marginTop: 15
 	},
 	bottomDrawerSection: {
-			marginBottom: 15,
-			borderTopColor: '#f4f4f4',
-			borderTopWidth: 1
 	},
 	preference: {
 		flexDirection: 'row',
@@ -190,9 +192,9 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	avatar: {
-			width: 50,
-			height: 50,
-			// marginRight: 11,
-			borderRadius: 50
+		width: 50,
+		height: 50,
+		// marginRight: 11,
+		borderRadius: 50
 	}
   })

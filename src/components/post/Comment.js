@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     flexDirection: 'row',
     alignItems: 'stretch',
-    marginBottom: 7,
+    marginBottom: 7
   },
   author: {
     paddingHorizontal: 14,

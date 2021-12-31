@@ -23,9 +23,9 @@ export const SplashScreen = ({navigation}) => {
             <Animatable.Image 
                 animation="bounceIn"
                 duraton="1500"
-            source={require('../../../assets/adaptive-icon.png')}
-            style={styles.logo}
-            resizeMode="stretch"
+                source={require('../../../assets/adaptive-icon.png')}
+                style={styles.logo}
+                resizeMode="stretch"
             />
         </View>
         <Animatable.View 
@@ -39,7 +39,7 @@ export const SplashScreen = ({navigation}) => {
             }]}>Оставайся на связи!</Text>
             <Text style={styles.text}>Войти с учетной записью</Text>
             <View style={styles.button}>
-            <TouchableOpacity onPress={()=>navigation.navigate('SignInScreen')}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignInScreen')}>
                 <LinearGradient
                     colors={['#2787f5', '#2787b5']}
                     style={styles.signIn}

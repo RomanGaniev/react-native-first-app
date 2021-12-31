@@ -2,19 +2,18 @@ import React, { useContext } from 'react'
 import { StyleSheet, TouchableOpacity, Image, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
-import { MessengerScreen } from './MessengerScreen'
-import { ChatScreen } from './ChatScreen'
-import { ChatHeader } from '../../../components/ChatHeader'
+import { FriendsScreen } from './FriendsScreen'
 import { AuthStateContext } from '../../../states/auth'
 
 import { createStackNavigator } from '@react-navigation/stack'
-const MessengerStack = createStackNavigator()
+import UserProfileScreen from '../../UserProfileScreen'
+const FriendshipStack = createStackNavigator()
 
-const MessengerStackScreen = ({navigation}) => {
+const FriendshipStackScreen = ({navigation}) => {
   const { user } = useContext(AuthStateContext)
 
   return(
-    <MessengerStack.Navigator
+    <FriendshipStack.Navigator
       screenOptions={{
         headerStyle: {
           backgroundColor: '#ffffff',
@@ -26,11 +25,11 @@ const MessengerStackScreen = ({navigation}) => {
           fontSize: 21
         }
       }}>
-      <MessengerStack.Screen
-        name="MessengerScreen"
-        component={MessengerScreen}
+      <FriendshipStack.Screen
+        name="FriendsScreen"
+        component={FriendsScreen}
         options={{
-          title:'Чаты',
+          title:'Друзья',
           headerShadowVisible: false,
           headerLeft: () => (
             <TouchableOpacity onPress={navigation.openDrawer} style={{paddingHorizontal: 10, flex: 1, justifyContent: 'center'}}>
@@ -38,37 +37,34 @@ const MessengerStackScreen = ({navigation}) => {
                 <Image source={{uri: user.info.avatar}} style={styles.avatar} />
               </View>
             </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <TouchableOpacity onPress={navigation.openDrawer} style={{paddingHorizontal: 10, flex: 1, justifyContent: 'center'}}>
-              <Ionicons name="create-outline" size={30} color="#2887f5" />
-            </TouchableOpacity>
           )
         }}
       />
-      <MessengerStack.Screen
-        name="ChatScreen"
-        component={ChatScreen}
+      <FriendshipStack.Screen
+        name="UserProfileScreen"
+        component={UserProfileScreen}
         options={({ route })=> ({
           headerShadowVisible: false,
           headerBackTitleVisible: false,
           headerTintColor: '#2887f5',
           headerTitleStyle: {
-            marginLeft: 0,
-            paddingLeft: 0
+            fontWeight: '600',
+            fontSize: 21,
+            color: 'black'
           },
-          headerTitle: () => <ChatHeader chat={route.params.chat} />,
-          headerTitleAlign: 'left',
-          headerTitleContainerStyle: {
-            marginLeft: 0
-          }
+          title: route.params.userParam.email
+          // headerTitle: () => <ChatHeader chat={route.params.chat} />,
+          // headerTitleAlign: 'left',
+          // headerTitleContainerStyle: {
+          //   marginLeft: 0
+          // }
         })}
       />
-    </MessengerStack.Navigator>
+    </FriendshipStack.Navigator>
   )
 }
 
-export default MessengerStackScreen
+export default FriendshipStackScreen
 
 const styles = StyleSheet.create({
   avatar: {

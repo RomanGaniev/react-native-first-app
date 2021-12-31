@@ -1,42 +1,58 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useContext, useEffect, useLayoutEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StyleSheet} from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Image } from 'react-native';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Ionicons, Fontisto } from '@expo/vector-icons';
 
-import FriendsScreen from './Friends/FriendsScreen'
+import FriendshipStackScreen from './Friends/FriendshipStackScreen'
 import HomeStackScreen from './Home/HomeStackScreen'
 import MessengerStackScreen from './Messenger/MessengerStackScreen'
 
-const Tab = createBottomTabNavigator();
+import { AuthStateContext } from '../../states/auth'
 
-import { AuthContext } from '../../states/auth/authDispatchContext';
+const Tab = createBottomTabNavigator()
 
-const MainTabScreen = () => {
+const MainTabScreen = ({navigation}) => {
+
+  const { user } = useContext(AuthStateContext)
+
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="Friends"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
+          let iconSize;
 
           if (route.name === 'Home') {
             iconName = 'home-outline'
+            iconSize = 26
           } else if (route.name === 'Notifications') {
             iconName = 'notifications-outline'
+            iconSize = 28
           } else if (route.name === 'Messenger') {
             iconName = 'comment'
-            return <Fontisto name={iconName} size={25} color={color} />
+            iconSize = 24
+            return <Fontisto name={iconName} size={iconSize} color={color} />
             // return <Feather name={iconName} size={28} color={color} />;
           } else if (route.name === 'Friends') {
             iconName = 'people-outline'
+            iconSize = 28
           }
 
-          return <Ionicons name={iconName} size={28} color={color} />;
+          return <Ionicons name={iconName} size={iconSize} color={color} />;
         },
         tabBarActiveTintColor: '#2887f5',
         tabBarInactiveTintColor: 'grey',
-        headerShown: false
+        headerShown: false,
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '600'
+        },
+        tabBarStyle: {
+          height: 50,
+          paddingBottom: 2
+        }
       })}>
       <Tab.Screen
         name="Home"
@@ -56,21 +72,28 @@ const MainTabScreen = () => {
         name="Messenger"
         component={MessengerStackScreen}
         options={({ route }) => ({
-          tabBarLabel: 'Messenger',
+          tabBarLabel: 'Мессенджер',
           tabBarStyle: ((route) => {
             let routeName = getFocusedRouteNameFromRoute(route) ?? ""
 
             if (routeName === "ChatScreen") {
-                return {display: 'none'}
+              return {
+                display: 'none',
+                height: 50,
+                paddingBottom: 2
+              }
+            } else {
+              return {
+                height: 50,
+                paddingBottom: 2
+              }
             }
-
-            return {}
-          })(route),
+          })(route)
         })}
       />
       <Tab.Screen
         name="Friends"
-        component={FriendsScreen}
+        component={FriendshipStackScreen}
         options={{
           tabBarLabel: 'Друзья'
         }}

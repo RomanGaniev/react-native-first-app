@@ -1,151 +1,200 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, RefreshControl, SafeAreaView, ScrollView } from 'react-native';
-import * as Device from 'expo-device';
-import { Axios } from '../../services/boot'
-import Api from '../../services/api';
-const api = new Api('Auth');
+import React, { useState, useEffect, useContext, useCallback } from 'react'
+import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, SafeAreaView, Keyboard, TouchableOpacity, Image, TouchableWithoutFeedback, Platform } from 'react-native'
+import { setStatusBarStyle } from 'expo-status-bar'
+import { Ionicons } from '@expo/vector-icons'
+import * as Device from 'expo-device'
+import { Axios } from '../../../services/boot'
+import Api from '../../../services/api'
+const api = new Api('Auth')
 import _ from 'lodash'
 
-import * as SecureStore from 'expo-secure-store';
+import * as Animatable from 'react-native-animatable'
 
-import { AuthDispatchContext } from '../../states/auth/authDispatchContext';
+import { AuthDispatchContext } from '../../states/auth/authDispatchContext'
+
+import { useToggle } from '../../../services/helpers/useToggle'
+import { SignUpModal } from './SignUpModal'
+// import { PasswordTextBox } from '../../components/PasswordTextBox'
 
 export const SignInScreen = ({navigation}) => {
 
-  const [data, setData] = React.useState({
-    email: '',
-    password: '',
-    refreshing: false
-  });
+  const [ email, setEmail ] = useState('')
+  const [ password, setPassword ] = useState('')
 
-  const { signIn } = React.useContext(AuthDispatchContext);
+  const [signUpModalVisible, toggleSignUpModalVisible] = useToggle(false)
 
-  let loginHandle = () => {
-    if(data.email && data.password) {
-      const fd = new FormData()
-      fd.append('email', data.email)
-      fd.append('password', data.password)
-      api.call('login', fd)
-        .then(({ data }) => {
-          signIn(data.access_token)
-        })
-        .catch(error => {
-          alert('Неверная связка логин-пароль')
-        })
-        .finally(() => {
-          //
-        })
-    } else {
-      if(!data.email) {
-        alert('Введите электронную почту')
-      } else if(!data.password) {
-        alert('Введите пароль')
-      } else {
-        alert('Заполните поля')
-      }
-    }
-  };
+  const [isSecureTextEntry, toggleIsSecureTextEntry] = useToggle(true)
+  const [isEditing, toggleIsEditing] = useToggle(false)
 
-  function wait(timeout) {
-    return new Promise(resolve => setTimeout(resolve, timeout));
-  };
-  function onRefresh() {
-    this.setState({
-      refreshing: true
-    });
-    this.setState({
-      refreshing: false
-    });
-  };
+  const { signIn } = useContext(AuthDispatchContext)
+  useEffect(() => {
+    setStatusBarStyle('dark')
+    console.log('SignInScreen is rendered')
+  }, [])
 
+  // const emailAndPasswordEntered = email && password
+  // const emailAndPasswordEntered = useCallback(() => {
+  //   if (email && password) {
+  //     console.log('true')
+  //     return true
+  //   } else {
+  //     console.log('false')
+  //     return false
+  //   }
+  // }, [email, password])
 
-  async function getToken() {
-    let token = ""
-    if (Device.brand) {
-      token = await SecureStore.getItemAsync('access_token');
-    } else {
-      token = localStorage.getItem('access_token');
-    }
-    if(token) {
-      console.log(token)
-    } else {
-      alert('Никто не авторизован')
-    }
-  };
+  let login = () => {
+    const fd = new FormData()
+    fd.append('email', email)
+    fd.append('password', password)
+    api.call('login', fd)
+      .then(({ data }) => {
+        signIn(data.access_token)
+      })
+      .catch(error => {
+        alert('Неверный email или пароль')
+      })
+      .finally(() => {
+        //
+      })
+  }
 
   return (
-    <SafeAreaView style={styles.containerscrollView}>
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        refreshControl={
-          <RefreshControl
-            refreshing={data.refreshing}
-            onRefresh={()=> onRefresh()}
-          />
-        }
-      >
-        <View style={styles.container}>
-          <Text style={{fontSize: 16, fontWeight: '600', marginBottom: 5, marginTop: 7}}>Электронный адрес</Text>
-          <TextInput
-            placeholder='Введите электронную почту'
-            style={styles.input}
-            onChangeText={(val) => {
-              setData({
-                ...data,
-                email: val
-              });
-            }}
-            value={data.email}
-            keyboardType='email-address'
-          />
-          <Text style={{fontSize: 16, fontWeight: '600', marginBottom: 5}}>Пароль</Text>
-          <TextInput
-            placeholder='Введите пароль'
-            style={styles.input}
-            onChangeText={(val) => {
-              setData({
-                ...data,
-                password: val
-              });
-            }}
-            value={data.password}
-          />
-          <Button title='Войти' onPress={() => loginHandle()}></Button>
-          <Button title='Показать токен' onPress={() => getToken()}></Button>
-          {/* <Button title='Посты' onPress={() => this.props.navigation.navigate('Posts')}></Button> */}
-          <View style={{flexDirection: 'row', alignItems: 'flex-end', flexGrow: 1, flex: 1, justifyContent: 'center'}}>
-            <View style={{alignItems: 'center'}}>
-              <Text style={{fontSize: 18, color: 'grey'}}>Еще нет аккаунта?</Text>
-              <Button title='Зарегистрируйтесь' onPress={() => navigation.navigate('SignUpScreen')}></Button>
+    <>
+      <SafeAreaView style={styles.containerscrollView}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.container}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View>
+              <Image
+                source={require('../../../assets/adaptive-icon.png')}
+                style={{width: 80, height: 80, marginBottom: 45, alignSelf: 'center'}}
+              />
+              <TextInput
+                placeholder='Email'
+                placeholderTextColor='#7c7c7c'
+                style={styles.inputEmail}
+                onChangeText={(text) => {setEmail(text)}}
+                value={email}
+                keyboardType='email-address'
+                autoCapitalize="none"
+                clearButtonMode='while-editing'
+              />
+              <View style={[styles.containerPassword, styles.inputPassword]}>
+                <TextInput
+                  placeholder='Пароль'
+                  placeholderTextColor='#7c7c7c'
+                  style={{flex: 1, fontSize: 16, paddingLeft: 12, paddingRight: isEditing ? 0 : 12}}
+                  onChangeText={val => setPassword(val)}
+                  value={password}
+                  secureTextEntry={isSecureTextEntry}
+                  onFocus={toggleIsEditing}
+                  onBlur={toggleIsEditing}
+                />
+                { isEditing ? 
+                  <TouchableOpacity activeOpacity={0.5} onPress={toggleIsSecureTextEntry} style={styles.button}>
+                    <Ionicons
+                      name={isSecureTextEntry ? 'eye-outline' : 'eye-off-outline'}
+                      size={25}
+                      color="grey"
+                      style={{ alignSelf: 'stretch'}}
+                    />
+                  </TouchableOpacity>
+                  : null
+                }
+              </View>
+              {/* <PasswordTextBox
+                // value={password}
+                value={password}
+                setValue={setPassword}
+                placeholder='Пароль'
+                style={styles.inputPassword}
+              /> */}
+              
+              <TouchableOpacity disabled={!email || !password} style={ email && password ? styles.loginButtonActive : styles.loginButtonInactive} onPress={login}>
+                <Text style={{color: 'white', fontWeight: '500', fontSize: 18}}>Войти</Text>
+              </TouchableOpacity>
             </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+
+        <View>
+          <View style={{alignItems: 'center', marginBottom: 20}}>
+            <TouchableOpacity style={{padding: 10}} onPress={toggleSignUpModalVisible}>
+              <Text style={{color: '#2887f5', fontWeight: '500', fontSize: 15}}>Зарегистрироваться</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        <SignUpModal
+          visible={signUpModalVisible}
+          toggleVisible={toggleSignUpModalVisible}
+        />
+      </SafeAreaView>
+
+      
+    </>
   );
 
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // justifyContent: '',
-    backgroundColor: 'white',
-    padding: 10
+  containerPassword: {
+    borderColor: '#b8b8b8',
+    backgroundColor: '#ededed',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  input: {
-    paddingHorizontal: 10,
-    height: 45,
-    borderColor: 'black',
-    borderWidth: 1.5,
-    borderRadius: 5,
-    marginBottom: 15
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingRight: 10,
+    paddingLeft: 5
   },
   containerscrollView: {
     flex: 1,
   },
-  scrollView: {
+  container: {
     flex: 1,
-    backgroundColor: 'pink'
+    justifyContent: 'center',
+    marginHorizontal: 20
+  },
+  inputEmail: {
+    paddingHorizontal: 12,
+    height: 45,
+    borderColor: '#b8b8b8',
+    borderTopWidth: 0.5,
+    borderLeftWidth: 0.5,
+    borderRightWidth: 0.5,
+    borderBottomWidth: 0.25,
+    borderTopStartRadius: 10,
+    borderTopEndRadius: 10,
+    fontSize: 16,
+    backgroundColor: '#ededed'
+  },
+  inputPassword: {
+    height: 45,
+    borderLeftWidth: 0.5,
+    borderRightWidth: 0.5,
+    borderBottomWidth: 0.5,
+    borderBottomStartRadius: 10,
+    borderBottomEndRadius: 10,
+    marginBottom: 15
+  },
+  loginButtonActive: {
+    backgroundColor: '#2887f5',
+    borderRadius: 10,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  loginButtonInactive: {
+    backgroundColor: '#98b6db',
+    borderRadius: 10,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
