@@ -142,7 +142,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
               <Text style={styles.username}>{user.info.first_name}</Text>
               <TouchableOpacity style={styles.button} onPress={createPost} disabled={!(text || image)}>
                 <View style={styles.icon}>
-                  <MaterialCommunityIcons name="arrow-up-circle" size={38} color={text || image ? '#2887f5' : 'grey' } />
+                  <MaterialCommunityIcons name="arrow-up-circle" size={38} color={text || image ? '#2887f5' : 'grey'} />
                 </View>
               </TouchableOpacity>
             </View>

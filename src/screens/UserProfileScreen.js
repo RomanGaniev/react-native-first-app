@@ -33,7 +33,6 @@ const UserProfileScreen = ({ route, navigation }) => {
   }, [])
 
   const sendFriendRequest = () => {
-
     api.call('sendFriendRequest', {otherUserId: otherUser.id})
       .then(({ data }) => {
         console.log(data)
@@ -44,11 +43,9 @@ const UserProfileScreen = ({ route, navigation }) => {
       .finally(() => {
         //
       })
-
   }
 
   const acceptFriendRequest = () => {
-
     api.call('acceptFriendRequest', {otherUserId: otherUser.id})
       .then(({ data }) => {
         console.log(data)
@@ -59,8 +56,69 @@ const UserProfileScreen = ({ route, navigation }) => {
       .finally(() => {
         //
       })
-      
   }
+
+  const rejectOrCancelFriendRequest = () => {
+    api.call('rejectOrCancelFriendRequest', {otherUserId: otherUser.id})
+      .then(({ data }) => {
+        console.log(data)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .finally(() => {
+        //
+      })
+  }
+
+  const removeFromFriends = () => {
+    api.call('removeFromFriends', {otherUserId: otherUser.id})
+      .then(({ data }) => {
+        console.log(data)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .finally(() => {
+        //
+      })
+  }
+
+  const goToChat = () => {
+    api.call('createPrivateChat', {interlocutorId: otherUser.id})
+      .then(({ data }) => {
+        
+          navigation.navigate('ChatScreen', {
+            chat: data.data
+          })
+        // navigation.navigate("ChatScreen", {
+        //   chat: chat
+        // })
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .finally(() => {
+        //
+      })
+  }
+
+  // const goToChat = () => {
+  //   navigation.navigate('Messenger',
+  //     {
+  //       screen: 'ChatScreen',
+  //       params: {
+  //         otherUser: otherUser
+  //       }
+  //     }
+  //   )
+  // }
+
+  // const goToChat = () => {
+  //   navigation.navigate('ChatScreen', {
+  //     otherUser: otherUser
+  //   })
+  // }
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -91,14 +149,34 @@ const UserProfileScreen = ({ route, navigation }) => {
         </View>
         <View style={{flexDirection: 'row', marginHorizontal: 12}}>
 
-          <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginRight: 4}]}>
+          <TouchableOpacity onPress={goToChat} activeOpacity={0.8} style={[styles.button, {marginRight: 4}]}>
             <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Сообщение</Text>
           </TouchableOpacity>
           
           { otherUser.friendship ?
-              <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4, backgroundColor: 'red'}]} onPress={sendFriendRequest}>
-                <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Удалить из друзей</Text>
-              </TouchableOpacity>
+              otherUser.friendship.status === 'pending' ?
+                otherUser.friendship.acted_user === user.info.id ?
+                    <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4}]} onPress={rejectOrCancelFriendRequest}>
+                      <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Отменить заявку</Text>
+                    </TouchableOpacity>
+                  :
+                    <>
+                      <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4}]} onPress={acceptFriendRequest}>
+                        <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Принять заявку</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4}]} onPress={rejectOrCancelFriendRequest}>
+                        <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Отклонить заявку</Text>
+                      </TouchableOpacity>
+                    </>
+                    
+                :
+                  otherUser.friendship.status === 'confirmed' ?
+                    <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4, backgroundColor: 'red'}]} onPress={removeFromFriends}>
+                      <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Удалить из друзей</Text>
+                    </TouchableOpacity> : null
+              // <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4, backgroundColor: 'red'}]} onPress={sendFriendRequest}>
+              //   <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Удалить из друзей</Text>
+              // </TouchableOpacity>
             :
               <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4}]} onPress={sendFriendRequest}>
                 <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Добавить в друзья</Text>

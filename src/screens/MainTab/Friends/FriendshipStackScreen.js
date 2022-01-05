@@ -3,7 +3,11 @@ import { StyleSheet, TouchableOpacity, Image, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
 import { FriendsScreen } from './FriendsScreen'
+import { FriendRequestsScreen } from './FriendRequestsScreen'
 import { AuthStateContext } from '../../../states/auth'
+
+import { ChatScreen } from '../Messenger/ChatScreen'
+import { ChatHeader } from '../../../components/ChatHeader'
 
 import { createStackNavigator } from '@react-navigation/stack'
 import UserProfileScreen from '../../UserProfileScreen'
@@ -53,11 +57,39 @@ const FriendshipStackScreen = ({navigation}) => {
             color: 'black'
           },
           title: route.params.userParam.email
-          // headerTitle: () => <ChatHeader chat={route.params.chat} />,
-          // headerTitleAlign: 'left',
-          // headerTitleContainerStyle: {
-          //   marginLeft: 0
-          // }
+        })}
+      />
+      <FriendshipStack.Screen
+        name="FriendRequestsScreen"
+        component={FriendRequestsScreen}
+        options={({ route })=> ({
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          headerTintColor: '#2887f5',
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: 21,
+            color: 'black'
+          },
+          title: 'Заявки'
+        })}
+      />
+      <FriendshipStack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
+        options={({ route })=> ({
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          headerTintColor: '#2887f5',
+          headerTitleStyle: {
+            marginLeft: 0,
+            paddingLeft: 0
+          },
+          headerTitle: () => <ChatHeader chat={route.params.chat} />,
+          headerTitleAlign: 'left',
+          headerTitleContainerStyle: {
+            marginLeft: 0
+          }
         })}
       />
     </FriendshipStack.Navigator>

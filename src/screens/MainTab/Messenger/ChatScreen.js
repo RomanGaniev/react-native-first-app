@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react'
-import { SafeAreaView, StyleSheet } from 'react-native'
+import { SafeAreaView, StyleSheet, ActionSheetIOS } from 'react-native'
 import { GiftedChat } from 'react-native-gifted-chat'
 
 import Api from '../../../../services/api'
@@ -10,6 +10,12 @@ import { AuthStateContext } from '../../../states/auth'
 
 import { ChatHeader } from '../../../components/ChatHeader'
 import { EmptyChat } from '../../../components/EmptyChat'
+import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator'
+
+import { useMessengerState } from '../../../states/messenger/messengerContext'
+import { useMessengerDispatch } from '../../../states/messenger/messengerContext'
+
+import ModalEditChat from '../../../components/ModalEditChat'
 
 const dayjs = require('dayjs');
 import ru from 'dayjs/locale/ru'
@@ -17,6 +23,9 @@ import ru from 'dayjs/locale/ru'
 let echo
 
 export const ChatScreen = ({route, navigation}) => {
+
+  const {modalEditChatVisible} = useMessengerState()
+  const {toggleEdit} = useMessengerDispatch()
 
   const { chat } = route.params
   const { user } = useContext(AuthStateContext)
@@ -29,7 +38,7 @@ export const ChatScreen = ({route, navigation}) => {
 
   useEffect(() => {
     showMessages()
-
+    
     echo = new Echo(user.token)
     let pusher = echo.join(`chat.${chat.id}`)
       .listen('ChatMessageSent', (e) => {
@@ -50,20 +59,56 @@ export const ChatScreen = ({route, navigation}) => {
     }
   }, [])
 
+  useEffect(() => {
+    if(modalEditChatVisible && chat.is_private) {
+      deleteChat()
+    }
+  }, [modalEditChatVisible])
+
   const showMessages = () => {
     api.call('showChatMessages', { chat_id: chat.id })
-      .then(({ data }) => {
-        let messages = data.data
-        messages = _.orderBy(messages, 'createdAt', 'desc')
-        setMessages(messages)
-        // console.log('showChatMessages', messages)
-      })
-      .catch(error => {
-        console.log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    .then(({ data }) => {
+      let messages = data.data
+      messages = _.orderBy(messages, 'createdAt', 'desc')
+      setMessages(messages)
+      // console.log('showChatMessages', messages)
+    })
+    .catch(error => {
+      console.log(error)
+    })
+    .finally(() => {
+      setIsLoading(false)
+    })    
+  }
+
+  const deleteChat = () => {
+    ActionSheetIOS.showActionSheetWithOptions({
+      options: ['Отмена', 'Удалить чат'],
+      destructiveButtonIndex: 1,
+      cancelButtonIndex: 0,
+      title: 'Вы действительно хотите удалить чат? Отменить это действие будет невозможно',
+      tintColor: '#2887f5'
+    },
+    buttonIndex => {
+      if (buttonIndex === 0) {
+        toggleEdit()
+      }
+      if (buttonIndex === 1) {
+        api.call('deleteGeneralChat', {
+          chatId: chat.id
+        })
+          .then(({ data }) => {
+            toggleEdit()
+            navigation.navigate('MessengerScreen')
+          })
+          .catch(error => {
+            console.log(error)
+          })
+          .finally(() => {
+            //
+          })
+      }
+    })
   }
 
   const loadOneMessage = (chat_message_id) => {
@@ -110,9 +155,9 @@ export const ChatScreen = ({route, navigation}) => {
     }, 3000)
   }
 
-  // if (isLoading) {
-  //   return <CustomActivityIndicator size='small' color='grey' />
-  // }
+  if (isLoading) {
+    return <CustomActivityIndicator size='small' color='grey' />
+  }
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <GiftedChat
@@ -136,6 +181,13 @@ export const ChatScreen = ({route, navigation}) => {
         // timeFormat=''
         dateFormat='LL'
       />
+      { !chat.is_private &&
+        <ModalEditChat
+          chat={chat}
+          navigation={navigation}
+        />
+      }
+      
     </SafeAreaView>
   )
 }

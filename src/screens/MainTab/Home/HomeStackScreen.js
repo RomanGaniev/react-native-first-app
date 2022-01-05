@@ -2,13 +2,9 @@ import React, { useContext } from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import { StyleSheet, TouchableOpacity, Image } from 'react-native'
 
-import {
-  Ionicons
-} from '@expo/vector-icons'
+import { Ionicons } from '@expo/vector-icons'
 
-import {
-  HomeScreen
-} from './HomeScreen'
+import { HomeScreen } from './HomeScreen'
 
 import { PostScreen } from './PostScreen'
 import MyProfileScreen from '../../MyProfileScreen'

@@ -5,13 +5,18 @@ import { Ionicons } from '@expo/vector-icons'
 import { MessengerScreen } from './MessengerScreen'
 import { ChatScreen } from './ChatScreen'
 import { ChatHeader } from '../../../components/ChatHeader'
+
 import { AuthStateContext } from '../../../states/auth'
+import { useMessengerState } from '../../../states/messenger/messengerContext'
+import { useMessengerDispatch } from '../../../states/messenger/messengerContext'
 
 import { createStackNavigator } from '@react-navigation/stack'
 const MessengerStack = createStackNavigator()
 
 const MessengerStackScreen = ({navigation}) => {
   const { user } = useContext(AuthStateContext)
+  // const modalVisible = useMessengerState()
+  const {toggleCreate, toggleEdit} = useMessengerDispatch()
 
   return(
     <MessengerStack.Navigator
@@ -26,6 +31,8 @@ const MessengerStackScreen = ({navigation}) => {
           fontSize: 21
         }
       }}>
+
+      
       <MessengerStack.Screen
         name="MessengerScreen"
         component={MessengerScreen}
@@ -40,12 +47,13 @@ const MessengerStackScreen = ({navigation}) => {
             </TouchableOpacity>
           ),
           headerRight: () => (
-            <TouchableOpacity onPress={navigation.openDrawer} style={{paddingHorizontal: 10, flex: 1, justifyContent: 'center'}}>
+            <TouchableOpacity onPress={toggleCreate} style={{paddingHorizontal: 10, flex: 1, justifyContent: 'center'}}>
               <Ionicons name="create-outline" size={30} color="#2887f5" />
             </TouchableOpacity>
           )
         }}
       />
+      
       <MessengerStack.Screen
         name="ChatScreen"
         component={ChatScreen}
@@ -61,6 +69,13 @@ const MessengerStackScreen = ({navigation}) => {
           headerTitleAlign: 'left',
           headerTitleContainerStyle: {
             marginLeft: 0
+          },
+          headerRight: () => {
+            return (
+              <TouchableOpacity activeOpacity={0.5} onPress={toggleEdit} style={{justifyContent: 'center', paddingHorizontal: 12, flex: 1}}>
+                <Ionicons name="ellipsis-horizontal-sharp" size={28} color="#2887f5" />
+              </TouchableOpacity>
+            )
           }
         })}
       />

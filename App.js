@@ -28,7 +28,7 @@ const App = () => {
 
   const [authState, dispatch] = React.useReducer(authReducer, initialAuthState)
 
-  const authContext = React.useMemo(() => ({
+  const authDispatch = React.useMemo(() => ({
     signIn: async(access_token) => {
       let userInfoData = null
       try {
@@ -70,7 +70,6 @@ const App = () => {
   useEffect(() => {
     (async () => {
       async function retrieve () {
-        // setIsLoading(false);
         let userToken = null
         let userInfoData = null
         try {
@@ -97,8 +96,6 @@ const App = () => {
         } catch(e) {
           console.log(e)
         }
-        
-        
       }
       await retrieve()
     })()
@@ -107,7 +104,7 @@ const App = () => {
   if (authState.isLoading) return <CustomActivityIndicator size='large' color='#2887f5' />
 
   return (
-    <AuthDispatchContext.Provider value={authContext}>
+    <AuthDispatchContext.Provider value={authDispatch}>
       <AuthStateContext.Provider value={authState}>
         <NavigationContainer>
           { authState.user.token !== null && authState.user.info !== null ?

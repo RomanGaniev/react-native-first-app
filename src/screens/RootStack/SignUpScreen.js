@@ -1,3 +1,90 @@
+const messengerReducer = (prevState, action) => {
+    switch( action.type ) {
+      case 'RETRIEVE_USER': 
+        return {
+          ...prevState,
+          user: {
+            token: action.token,
+            info: action.info
+          },
+          isLoading: false,
+        };
+      case 'LOGIN':
+        return {
+          ...prevState,
+          user: {
+            token: action.token,
+            info: action.info
+          },
+          isLoading: false,
+        };
+      case 'LOGOUT': 
+        return {
+          ...prevState,
+          user: {
+            token: null,
+            info: null
+          },
+          isLoading: false,
+        };
+      case 'REGISTER': 
+        return {
+          ...prevState,
+          user: {
+            token: action.token,
+            info: action.info
+          },
+          isLoading: false,
+        };
+    }
+};
+
+const initialMessengerState = {
+    modalCreateChatVisible: false,
+    modalEditChatVisible: false
+}
+
+const [messengerState, dispatch] = React.useReducer(messengerReducer, initialMessengerState)
+
+const messengerDispatch = React.useMemo(() => ({
+    signIn: () => {
+    
+        try {
+        //
+        } catch(e) {
+            console.log(e)
+        }
+        
+        dispatch({ type: 'LOGIN', token: access_token, info: userInfoData })
+    },
+    signOut: () => {
+
+        try {
+            //
+        } catch(e) {
+            console.log(e)
+        }
+
+        dispatch({ type: 'LOGOUT' })
+    }
+}), [])
+
+
+
+//============================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect } from 'react';
 import { 
     View,

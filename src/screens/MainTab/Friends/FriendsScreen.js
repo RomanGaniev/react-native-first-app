@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react'
-import { View, Text, Button, StyleSheet, SafeAreaView, TouchableHighlight, ScrollView } from 'react-native'
+import React, {useState, useEffect, useCallback} from 'react'
+import { View, Text, Button, StyleSheet, SafeAreaView, TouchableHighlight, ScrollView, RefreshControl } from 'react-native'
 
 import Api from '../../../../services/api';
 const api = new Api('User');
@@ -15,24 +15,41 @@ import {
 export const FriendsScreen = ({navigation}) => {
 
   const [friends, setFriends] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [friendRequests, setFriendRequests] = useState([])
+  const [isLoadingFriends, setIsLoadingFriends] = useState(true)
+  const [isLoadingFriendRequests, setIsLoadingFriendRequests] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     showFriends()
+    showFriendRequests()
   }, [])
 
   const showFriends = () => {
     api.call('showFriends')
       .then(({ data }) => {
         // let friends = data
-        console.log(data.data)
         setFriends(data.data)
       })
       .catch(error => {
         console.log(error)
       })
       .finally(() => {
-        setIsLoading(false)
+        setIsLoadingFriends(false)
+        setRefreshing(false)
+      })
+  }
+
+  const showFriendRequests = () => {
+    api.call('showFriendRequests')
+      .then(({ data }) => {
+        setFriendRequests(data.data)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoadingFriendRequests(false)
       })
   }
 
@@ -42,16 +59,42 @@ export const FriendsScreen = ({navigation}) => {
     })
   }
 
-  if (isLoading) {
+  const goToFriendRequests = () => {
+    navigation.navigate("FriendRequestsScreen", {
+      friendRequests
+    })
+  }
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true)
+    showFriends()
+    showFriendRequests()
+  }, [])
+
+  if (isLoadingFriends || isLoadingFriendRequests) {
     return <CustomActivityIndicator size='small' color='grey' />
   }
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={{backgroundColor: 'white', flex: 1}}>
-        { 
-        
-          friends.map((friend, index) => (
+      <ScrollView
+        contentContainerStyle={{backgroundColor: 'white', flex: 1}}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh} />
+        }>
+      { friendRequests.length > 0 &&
+        <TouchableHighlight onPress={goToFriendRequests} underlayColor="#e1e1e1">
+          <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
+            <View style={{marginLeft: 12, flexDirection: 'row', flex: 1, justifyContent: 'space-between'}}>
+              <Text>Заявки в друзья</Text>
+              <Text>{friendRequests.length}</Text>
+            </View>
+          </View>
+        </TouchableHighlight>
+      }
+        { friends.map((friend, index) => (
             <TouchableHighlight onPress={() => goToUserProfile(friend)} underlayColor="#e1e1e1" key={'friend-' + index}>
               <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
                 <Avatar.Image 
@@ -72,7 +115,6 @@ export const FriendsScreen = ({navigation}) => {
               </View>
             </TouchableHighlight>
           ))
-
         }
       </ScrollView>
     </SafeAreaView>

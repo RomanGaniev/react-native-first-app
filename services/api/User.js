@@ -16,14 +16,6 @@ class User {
     }
   })
 
-  sendImage = (data) => axios.post('api/v1/user/send_image', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-
-  getImage = () => axios.get('api/v1/user/get_image')
-
   showComments = (data) => axios.get(`api/v1/user/posts/${data.id}/comments`, data)
   sendNewComment = (data) => axios.post('api/v1/user/posts/add_comment', data, {
     headers: {
@@ -32,6 +24,18 @@ class User {
   })
 
   showChats = () => axios.get('api/v1/user/chats')
+  createPrivateChat = (data) => axios.post(`api/v1/user/chats/${data.interlocutorId}/create_private`, data)
+  createGeneralChat = (data) => axios.post(`api/v1/user/chats/create_general`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+  editGeneralChat = (data) => axios.post('api/v1/user/chats/edit_general', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+  deleteGeneralChat = (data) => axios.post(`api/v1/user/chats/${data.chatId}/delete_general`, data)
   showChatMessages = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/messages`, data)
   sendMessage = (data) => axios.post('api/v1/user/chats/send_message', data, {
     headers: {
@@ -39,10 +43,14 @@ class User {
     }
   })
   showOneChatMessage = (data) => axios.get(`api/v1/user/chats/${data.chat_message_id}`, data)
+  showFriendsAddedToChat = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/participants`, data)
 
-  showFriends = () => axios.get('api/v1/user/friendship')
-  sendFriendRequest = (data) => axios.post(`api/v1/user/friendship/${data.otherUserId}/send_request`, data)
-  acceptFriendRequest = (data) => axios.post(`api/v1/user/friendship/${data.otherUserId}/accept_request`, data)
+  showFriends = () => axios.get('api/v1/user/friends')
+  showFriendRequests = () => axios.get('api/v1/user/friends/requests')
+  sendFriendRequest = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/send_request`, data)
+  acceptFriendRequest = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/accept_request`, data)
+  rejectOrCancelFriendRequest = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/reject_or_cancel_request`, data)
+  removeFromFriends = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/remove`, data)
 
   showUsers = () => axios.get('api/v1/user/search/users')
 }
