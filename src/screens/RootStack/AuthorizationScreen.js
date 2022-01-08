@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react'
-import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView, SafeAreaView, Keyboard, TouchableOpacity, Image, TouchableWithoutFeedback, Platform } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
+import { View, Text, StyleSheet, TextInput, KeyboardAvoidingView, SafeAreaView, Keyboard, TouchableOpacity, Image, TouchableWithoutFeedback, Platform } from 'react-native'
 import { setStatusBarStyle } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons'
-import * as Device from 'expo-device'
-import { Axios } from '../../../services/boot'
 import Api from '../../../services/api'
 const api = new Api('Auth')
 import _ from 'lodash'
 
-import * as Animatable from 'react-native-animatable'
 
 import { AuthDispatchContext } from '../../states/auth/authDispatchContext'
 
@@ -16,7 +13,7 @@ import { useToggle } from '../../../services/helpers/useToggle'
 import { SignUpModal } from './SignUpModal'
 // import { PasswordTextBox } from '../../components/PasswordTextBox'
 
-export const SignInScreen = ({navigation}) => {
+export const AuthorizationScreen = ({navigation}) => {
 
   const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')
@@ -29,7 +26,7 @@ export const SignInScreen = ({navigation}) => {
   const { signIn } = useContext(AuthDispatchContext)
   useEffect(() => {
     setStatusBarStyle('dark')
-    console.log('SignInScreen is rendered')
+    console.log('AuthorizationScreen is rendered')
   }, [])
 
   // const emailAndPasswordEntered = email && password
@@ -136,8 +133,7 @@ export const SignInScreen = ({navigation}) => {
 
       
     </>
-  );
-
+  )
 }
 
 const styles = StyleSheet.create({

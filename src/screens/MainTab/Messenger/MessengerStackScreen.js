@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons'
 
 import { MessengerScreen } from './MessengerScreen'
 import { ChatScreen } from './ChatScreen'
-import { ChatHeader } from '../../../components/ChatHeader'
+import { ChatHeader } from '../../../components/messenger/ChatHeader'
 
 import { AuthStateContext } from '../../../states/auth'
 import { useMessengerState } from '../../../states/messenger/messengerContext'
@@ -16,7 +16,7 @@ const MessengerStack = createStackNavigator()
 const MessengerStackScreen = ({navigation}) => {
   const { user } = useContext(AuthStateContext)
   // const modalVisible = useMessengerState()
-  const {toggleCreate, toggleEdit} = useMessengerDispatch()
+  const {toggleModalCreateChatVisible, toggleModalEditChatVisible} = useMessengerDispatch()
 
   return(
     <MessengerStack.Navigator
@@ -47,7 +47,7 @@ const MessengerStackScreen = ({navigation}) => {
             </TouchableOpacity>
           ),
           headerRight: () => (
-            <TouchableOpacity onPress={toggleCreate} style={{paddingHorizontal: 10, flex: 1, justifyContent: 'center'}}>
+            <TouchableOpacity onPress={toggleModalCreateChatVisible} style={{paddingHorizontal: 10, flex: 1, justifyContent: 'center'}}>
               <Ionicons name="create-outline" size={30} color="#2887f5" />
             </TouchableOpacity>
           )
@@ -72,7 +72,7 @@ const MessengerStackScreen = ({navigation}) => {
           },
           headerRight: () => {
             return (
-              <TouchableOpacity activeOpacity={0.5} onPress={toggleEdit} style={{justifyContent: 'center', paddingHorizontal: 12, flex: 1}}>
+              <TouchableOpacity activeOpacity={0.5} onPress={toggleModalEditChatVisible} style={{justifyContent: 'center', paddingHorizontal: 12, flex: 1}}>
                 <Ionicons name="ellipsis-horizontal-sharp" size={28} color="#2887f5" />
               </TouchableOpacity>
             )

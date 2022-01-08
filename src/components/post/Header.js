@@ -1,6 +1,7 @@
 import React, {useContext} from 'react'
 import { View, StyleSheet, TouchableOpacity, Image, Text } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { CustomActivityIndicator } from '../CustomActivityIndicator'
 
 import { PostContext } from '../../states/post/postContext'
 
@@ -10,22 +11,31 @@ export const Header = ({ optionsButtonVisible, showOptions }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity activeOpacity={0.7} style={styles.author}>
+      <TouchableOpacity
+        disabled={post.is_loading}
+        activeOpacity={0.7}
+        style={styles.author}
+      >
         <View style={{backgroundColor: '#e1e1e1', ...styles.avatar}}>
           <Image source={{uri: post.author.avatar}} style={styles.avatar} />
         </View>
         <View>
           <Text style={styles.authorName}>
-            {`${post.author.first_name} ${post.author.last_name}`}
+            {`${post.author.first_name} ${post.author.last_name} ${post.id}`}
           </Text>
           <Text style={styles.postCreated}>{post.created_at}</Text>
         </View>
       </TouchableOpacity>
-      { optionsButtonVisible && 
-        <TouchableOpacity onPress={showOptions} style={styles.options}>
-          <Ionicons name="ellipsis-horizontal-sharp" size={23} color="grey" />
-        </TouchableOpacity>
+      { post.is_loading ?
+          <CustomActivityIndicator size='small' color='grey' backgroundStyle={styles.options} />
+        :
+          optionsButtonVisible && 
+            <TouchableOpacity onPress={showOptions} style={styles.options}>
+              <Ionicons name="ellipsis-horizontal-sharp" size={23} color="grey" />
+            </TouchableOpacity>
+          
       }
+      
     </View>
   )
 }

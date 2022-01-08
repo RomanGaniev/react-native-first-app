@@ -24,6 +24,7 @@ class User {
   })
 
   showChats = () => axios.get('api/v1/user/chats')
+  showOneChat = (data) => axios.get(`api/v1/user/chats/${data.chat_id}`, data)
   createPrivateChat = (data) => axios.post(`api/v1/user/chats/${data.interlocutorId}/create_private`, data)
   createGeneralChat = (data) => axios.post(`api/v1/user/chats/create_general`, data, {
     headers: {
@@ -37,12 +38,17 @@ class User {
   })
   deleteGeneralChat = (data) => axios.post(`api/v1/user/chats/${data.chatId}/delete_general`, data)
   showChatMessages = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/messages`, data)
+
+
+  readAllMessagesWhenLeavingChat = (data) => axios.post(`api/v1/user/chats/${data.chat_id}/messages/read_all`, data)
+
+
   sendMessage = (data) => axios.post('api/v1/user/chats/send_message', data, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   })
-  showOneChatMessage = (data) => axios.get(`api/v1/user/chats/${data.chat_message_id}`, data)
+  showOneChatMessage = (data) => axios.get(`api/v1/user/chats/messages/${data.chat_message_id}`, data)
   showFriendsAddedToChat = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/participants`, data)
 
   showFriends = () => axios.get('api/v1/user/friends')

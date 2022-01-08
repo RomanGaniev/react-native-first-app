@@ -14,22 +14,18 @@ import {
 
 export const FriendRequestsScreen = ({ route }) => {
 
-  // const { friendRequests } = route.params
   const [requests, setRequests] = useState(route.params.friendRequests)
   const [isLoading, setIsLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
-    // showRequests()
+    showRequests()
   }, [])
 
   const showRequests = () => {
     api.call('showFriendRequests')
       .then(({ data }) => {
         setRequests(data.data)
-      })
-      .catch(error => {
-        console.log(error)
       })
       .finally(() => {
         setIsLoading(false)
@@ -42,24 +38,12 @@ export const FriendRequestsScreen = ({ route }) => {
       .then(({ data }) => {
         console.log(data)
       })
-      .catch(error => {
-        console.log(error)
-      })
-      .finally(() => {
-        //
-      })
   }
 
   const rejectOrCancelFriendRequest = (user_id) => {
     api.call('rejectOrCancelFriendRequest', {otherUserId: user_id})
       .then(({ data }) => {
         console.log(data)
-      })
-      .catch(error => {
-        console.log(error)
-      })
-      .finally(() => {
-        //
       })
   }
 
@@ -76,41 +60,44 @@ export const FriendRequestsScreen = ({ route }) => {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView
-        contentContainerStyle={{backgroundColor: 'white', flex: 1}}
+        contentContainerStyle={{flex: 1, backgroundColor: 'white'}}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh} />
         }>
-        { 
-        
-          requests.map((request, index) => (
-            <TouchableHighlight underlayColor="#e1e1e1" key={'friend-' + index}>
-              <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
+        { requests.map((request, index) => (
+            <View key={'friend-' + index}>
+              <View style={styles.userContainer}>
                 <Avatar.Image 
                   source={{uri: request.user.avatar}}
                   style={{backgroundColor: '#e1e1e1'}}
                   size={70}
                 />
-                
-                <View style={{marginLeft: 12, flexDirection: 'column', flex: 1}}>
-                  <Title style={styles.title}>{`${request.user.first_name} ${request.user.last_name}`}</Title>
+                <View style={styles.user}>
+                  <Title style={styles.title}>
+                    {`${request.user.first_name} ${request.user.last_name}`}
+                  </Title>
                   <View style={{flexDirection:'row'}}>
-                    
-                    <TouchableOpacity activeOpacity={0.8} style={[styles.button]} onPress={() => acceptFriendRequest(request.user.id)}>
-                      <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Добавить</Text>
+                    <TouchableOpacity 
+                      activeOpacity={0.8}
+                      style={styles.button}
+                      onPress={() => acceptFriendRequest(request.user.id)}
+                    >
+                      <Text style={styles.acceptTextButton}>Добавить</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 10, backgroundColor: '#ececec'}]} onPress={() => rejectOrCancelFriendRequest(request.user.id)}>
-                      <Text style={{color: '#2887f5', fontWeight: '500', fontSize: 14}}>Отклонить</Text>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => rejectOrCancelFriendRequest(request.user.id)}
+                      style={[styles.button, {marginLeft: 10, backgroundColor: '#ececec'}]}
+                    >
+                      <Text style={styles.rejectTextButton}>Отклонить</Text>
                     </TouchableOpacity>
-                    
                   </View>
-                  
                 </View>
               </View>
-            </TouchableHighlight>
+            </View>
           ))
-
         }
       </ScrollView>
     </SafeAreaView>
@@ -118,11 +105,6 @@ export const FriendRequestsScreen = ({ route }) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center'
-  },
   avatar: {
     width: 70,
     height: 70,
@@ -154,4 +136,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1
   },
+  userContainer: {
+    flexDirection:'row',
+    marginHorizontal: 15,
+    marginVertical: 10,
+    backgroundColor: 'transparent'
+  },
+  user: {
+    marginLeft: 12,
+    flexDirection: 'column',
+    flex: 1
+  },
+  acceptTextButton: {
+    color: 'white',
+    fontWeight: '500',
+    fontSize: 14
+  },
+  rejectTextButton: {
+    color: '#2887f5',
+    fontWeight: '500',
+    fontSize: 14
+  }
 })

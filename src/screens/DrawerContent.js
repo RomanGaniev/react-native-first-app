@@ -1,23 +1,20 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useContext } from 'react'
 import { View, StyleSheet } from 'react-native'
 import {
-    Avatar,
-    Title,
-    Caption,
-    Drawer
+	Avatar,
+	Title,
+	Caption,
+	Drawer
 } from 'react-native-paper'
 import {
-    DrawerContentScrollView,
-    DrawerItem
+	DrawerContentScrollView,
+	DrawerItem
 } from '@react-navigation/drawer'
 
-import { Ionicons, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 
-import { AuthDispatchContext } from '../states/auth/authDispatchContext';
-import { AuthStateContext } from '../states/auth/authStateContext';
-
-// import * as SecureStore from 'expo-secure-store';
-// import * as Device from 'expo-device';
+import { AuthDispatchContext } from '../states/auth/authDispatchContext'
+import { AuthStateContext } from '../states/auth/authStateContext'
 
 export function DrawerContent(props) {
 
@@ -26,7 +23,7 @@ export function DrawerContent(props) {
 
 	return(
 		<View style={{flex:1}}>
-			<DrawerContentScrollView {...props} >
+			<DrawerContentScrollView>
 				<View style={styles.drawerContent}>
 					<View style={styles.userInfoSection}>
 						<View style={{flexDirection: 'row',marginTop: 15}}>
@@ -44,22 +41,12 @@ export function DrawerContent(props) {
 								<Caption style={styles.caption}>{user.info.email}</Caption>
 							</View>
 						</View>
-						{/* <View style={styles.row}>
-								<View style={styles.section}>
-										<Paragraph style={[styles.paragraph, styles.caption]}>80</Paragraph>
-										<Caption style={styles.caption}>Подписок</Caption>
-								</View>
-								<View style={styles.section}>
-										<Paragraph style={[styles.paragraph, styles.caption]}>100</Paragraph>
-										<Caption style={styles.caption}>Подписчиков</Caption>
-								</View>
-						</View> */}
 					</View>
 					<Drawer.Section style={styles.drawerSection}>
 						<DrawerItem 
-							icon={({color, size}) => (
-								<Octicons 
-									name="octoface" 
+							icon={() => (
+								<MaterialCommunityIcons 
+									name="face-outline" 
 									color="#2887f5"
 									size={28}
 								/>
@@ -68,19 +55,8 @@ export function DrawerContent(props) {
 							labelStyle={{fontSize: 17, fontWeight: '400', color: 'black'}}
 							onPress={() => {props.navigation.navigate('MyProfileScreen')}}
 						/>
-						{/* <DrawerItem 
-							icon={({color, size}) => (
-									<Ionicons 
-										name="ios-home-outline" 
-										color="black"
-										size={size}
-									/>
-							)}
-							label="Домой"
-							onPress={() => {props.navigation.navigate('Home')}}
-						/> */}
 						<DrawerItem 
-							icon={({color, size}) => (
+							icon={() => (
 								<Ionicons 
 									name="bookmark-outline" 
 									color="#2887f5"
@@ -92,7 +68,7 @@ export function DrawerContent(props) {
 							onPress={() => {props.navigation.navigate('BookmarkScreen')}}
 						/>
 						<DrawerItem 
-							icon={({color, size}) => (
+							icon={() => (
 								<Ionicons 
 									name="search-outline" 
 									color="#2887f5"
@@ -103,19 +79,8 @@ export function DrawerContent(props) {
 							labelStyle={{fontSize: 17, fontWeight: '400', color: 'black'}}
 							onPress={() => {props.navigation.navigate('SearchScreen')}}
 						/>
-						{/* <DrawerItem 
-							icon={({color, size}) => (
-								<Ionicons 
-									name="help-circle-outline" 
-									color="black"
-									size={size}
-								/>
-							)}
-							label="Помощь"
-							onPress={() => {props.navigation.navigate('SearchScreen')}}
-						/> */}
 						<DrawerItem 
-							icon={({color, size}) => (
+							icon={() => (
 								<Ionicons 
 									name="settings-outline" 
 									color="#2887f5"
@@ -131,10 +96,10 @@ export function DrawerContent(props) {
 			</DrawerContentScrollView>
 			<Drawer.Section style={styles.bottomDrawerSection}>
 				<DrawerItem 
-					icon={({color, size}) => (
+					icon={() => (
 						<MaterialCommunityIcons 
 							name="logout" 
-							color="red"
+							color="#ff2e2e"
 							size={28}
 						/>
 					)}
@@ -176,25 +141,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		marginRight: 15,
 	},
-	paragraph: {
-		fontWeight: 'bold',
-		marginRight: 3,
-	},
 	drawerSection: {
 		marginTop: 15
-	},
-	bottomDrawerSection: {
-	},
-	preference: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		paddingVertical: 12,
-		paddingHorizontal: 16,
 	},
 	avatar: {
 		width: 50,
 		height: 50,
-		// marginRight: 11,
 		borderRadius: 50
 	}
-  })
+})

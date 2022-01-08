@@ -21,18 +21,19 @@ import { AuthStateContext } from '../states/auth'
 import { useMessengerState } from '../states/messenger/messengerContext'
 import { useMessengerDispatch } from '../states/messenger/messengerContext'
 
-const ModalEditChat = ({ chat, navigation }) => {
+const ModalEditChat = ({ chat, navigation, updateChat }) => {
 
   const { user } = useContext(AuthStateContext)
 
   const {modalEditChatVisible} = useMessengerState()
-  const {toggleEdit} = useMessengerDispatch()
+  const {toggleModalEditChatVisible, setEditedChat} = useMessengerDispatch()
 
   const [avatar, setAvatar] = useState(chat.avatar)
   const [chatName, setChatName] = useState(chat.name)
   const [friends, setFriends] = useState([])
   const [isLoadingFriends, setIsLoadingFriends] = useState(true)
   const [isLoadingFriendsAddedToChat, setIsLoadingFriendsAddedToChat] = useState(true)
+  const [isLoadingEditing, setIsLoadingEditing] = useState(false)
   const [friendsAddedToChat, setFriendsAddedToChat] = useState([])
 
   useEffect(() => {
@@ -49,9 +50,6 @@ const ModalEditChat = ({ chat, navigation }) => {
       .then(({ data }) => {
         setFriends(data.data)
       })
-      .catch(error => {
-        console.log(error)
-      })
       .finally(() => {
         setIsLoadingFriends(false)
       })
@@ -63,9 +61,6 @@ const ModalEditChat = ({ chat, navigation }) => {
     })
       .then(({ data }) => {
         setFriendsAddedToChat(data)
-      })
-      .catch(error => {
-        console.log(error)
       })
       .finally(() => {
         setIsLoadingFriendsAddedToChat(false)
@@ -90,7 +85,7 @@ const ModalEditChat = ({ chat, navigation }) => {
   }
 
   const closeModal = () => {
-      toggleEdit()
+    toggleModalEditChatVisible()
       clearAll()
   }
 
@@ -101,6 +96,7 @@ const ModalEditChat = ({ chat, navigation }) => {
   }
 
   const editChat = () => {
+    setIsLoadingEditing(true)
     const fd = new FormData()
     fd.append('chatId', chat.id)
     fd.append('chatName', chatName)
@@ -120,16 +116,12 @@ const ModalEditChat = ({ chat, navigation }) => {
 
     api.call('editGeneralChat', fd)
       .then(({ data }) => {
-        toggleEdit()
-        // navigation.navigate('ChatScreen', {
-        //   chat: data.data
-        // })
-      })
-      .catch(error => {
-        console.log(error)
+        setEditedChat(data.data.id)
+        updateChat(data.data)
+        toggleModalEditChatVisible()
       })
       .finally(() => {
-        //
+        setIsLoadingEditing(false)
       })
   }
 
@@ -147,14 +139,8 @@ const ModalEditChat = ({ chat, navigation }) => {
           chatId: chat.id
         })
           .then(({ data }) => {
-            toggleEdit()
+            toggleModalEditChatVisible()
             navigation.navigate('MessengerScreen')
-          })
-          .catch(error => {
-            console.log(error)
-          })
-          .finally(() => {
-            //
           })
       }
     })
@@ -186,15 +172,19 @@ const ModalEditChat = ({ chat, navigation }) => {
         >
           <View style={styles.header}>
             <View style={styles.buttonsContainer}>
-              <TouchableOpacity style={{width: 62, ...styles.button}} onPress={closeModal}>
-                <View style={styles.icon}>
+              <TouchableOpacity style={styles.button} onPress={closeModal} disabled={isLoadingEditing}>
+                <View style={styles.iconClose}>
                   <MaterialCommunityIcons name="close-circle" size={28} color="#c9c9c9" />
                 </View>
               </TouchableOpacity>
               <Text style={styles.username}>Редактирование</Text>
-              <TouchableOpacity style={styles.button} onPress={editChat} disabled={!chatName}>
-                <View style={styles.icon}>
-                  <Ionicons name="add-circle-sharp" size={38} color={chatName ? '#2887f5' : 'grey'} />
+              <TouchableOpacity style={styles.button} onPress={editChat} disabled={!chatName || isLoadingEditing}>
+                <View style={styles.iconSave}>
+                  { isLoadingEditing ?
+                    <CustomActivityIndicator size={'small'} color={'grey'} />
+                    :
+                    <Ionicons name="save" size={30} color={chatName ? '#2887f5' : 'grey'} />
+                  }
                 </View>
               </TouchableOpacity>
             </View>
@@ -204,9 +194,13 @@ const ModalEditChat = ({ chat, navigation }) => {
               <Separator height={1} color='#ececec' marginHorizontal={15} />
               <View style={{flex: 1, paddingHorizontal: 15, marginTop: 20}}>
                 <View style={{flexDirection: 'row', marginBottom: 20, alignItems: 'center'}}>
-                  <TouchableOpacity activeOpacity={0.5} onPress={pickImage} style={{alignItems: 'center'}}>
+                  <TouchableOpacity activeOpacity={0.5} onPress={pickImage} style={{alignItems: 'center'}} disabled={isLoadingEditing}>
                     { avatar ?
-                      <Image source={{ uri: avatar }} style={{ width: 70, height: 70, borderRadius: 100 }} />
+                      <Avatar.Image 
+                        source={{uri: avatar}}
+                        style={{backgroundColor: '#e1e1e1', width: 70, height: 70, borderRadius: 100}}
+                        size={70}
+                      />
                       :
                       <View style={styles.placeholderAvatar}>
                         <Ionicons name="camera-outline" color="#2887f5" size={33} />
@@ -222,6 +216,7 @@ const ModalEditChat = ({ chat, navigation }) => {
                     }}
                     value={chatName}
                     clearButtonMode='while-editing'
+                    editable={!isLoadingEditing}
                   />
                 </View>
                 
@@ -241,12 +236,13 @@ const ModalEditChat = ({ chat, navigation }) => {
                           <Title style={styles.title}>{`${friend.first_name} ${friend.last_name}`}</Title>
                         </View>
                         <TouchableOpacity
+                          disabled={isLoadingEditing}
                           activeOpacity={0.5}
                           style={{padding: 4}}
                           onPress={() => toggleAddFriendToNewChat(friend.id)}
                         >
                           { friendsAddedToChat.includes(friend.id) ?
-                              <Ionicons name="remove-circle-outline" size={34} color={'red'} />
+                              <Ionicons name="remove-circle-outline" size={34} color={'#ff2e2e'} />
                             :
                               <Ionicons name="add-circle-outline" size={34} color={'#2887f5'} />
                           }
@@ -257,8 +253,8 @@ const ModalEditChat = ({ chat, navigation }) => {
                 { friendsAddedToChat.length > 0 &&
                   <Text style={{textAlign: 'center'}}>Добавлено участников: {friendsAddedToChat.length}</Text>
                 }
-                <TouchableOpacity activeOpacity={0.5} onPress={deleteChat} style={{borderRadius: 12, backgroundColor: 'red', height: 50, alignItems: 'center', justifyContent: 'center', marginTop: 30}}>
-                  <Text style={{color: 'white', fontSize: 17, fontWeight: '500'}}>Удалить чат</Text>
+                <TouchableOpacity disabled={isLoadingEditing} activeOpacity={0.5} onPress={deleteChat} style={{borderRadius: 12, backgroundColor: '#ffd3db', height: 50, alignItems: 'center', justifyContent: 'center', marginTop: 30}}>
+                  <Text style={{color: '#ff2e2e', fontSize: 17, fontWeight: '500'}}>Удалить чат</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -288,9 +284,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white'
   },
-  icon: {
+  iconClose: {
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginRight: 2,
+    width: 40
+  },
+  iconSave: {
+    flex: 1,
+    justifyContent: 'center',
+    marginRight: 2,
+    width: 40,
+    alignItems: 'flex-end'
   },
   inputAccessoryView: {
     height: 50,
@@ -306,11 +311,14 @@ const styles = StyleSheet.create({
     marginLeft: 15
   },
   button: {
-    paddingHorizontal: 12
+    paddingHorizontal: 12,
+    // width: 62,
+    // alignSelf: 'flex-start'
   },
   username: {
     fontSize: 20,
-    fontWeight: '600'
+    fontWeight: '600',
+    alignSelf: 'center'
   },
   placeholderAvatar: {
     width: 70,

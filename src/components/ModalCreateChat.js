@@ -22,31 +22,27 @@ import { AuthStateContext } from '../states/auth'
 import { useMessengerState } from '../states/messenger/messengerContext'
 import { useMessengerDispatch } from '../states/messenger/messengerContext'
 
-const ModalCreateChat = ({ navigation }) => {
+const ModalCreateChat = ({ navigation, pushChat }) => {
 
   const { user } = useContext(AuthStateContext)
 
   const {modalCreateChatVisible} = useMessengerState()
-  const {toggleCreate} = useMessengerDispatch()
+  const {toggleModalCreateChatVisible} = useMessengerDispatch()
 
   const [avatar, setAvatar] = useState(null)
   const [chatName, setChatName] = useState('')
   const [friends, setFriends] = useState([])
   const [isLoadingFriends, setIsLoadingFriends] = useState(true)
+  const [isLoadingCreating, setIsLoadingCreating] = useState(false)
   const [friendsAddedToChat, setFriendsAddedToChat] = useState([])
 
   useEffect(() => {
     showFriends()
   }, [])
 
-  useEffect(() => {
-    console.log('friendsAddedToChat changed to: ', friendsAddedToChat)
-  }, [friendsAddedToChat])
-
   const showFriends = () => {
     api.call('showFriends')
       .then(({ data }) => {
-        console.log(data.data)
         setFriends(data.data)
       })
       .catch(error => {
@@ -67,8 +63,6 @@ const ModalCreateChat = ({ navigation }) => {
       base64: false
     })
 
-    console.log(result)
-
     if (!result.cancelled) {
       setAvatar(result.uri)
     }
@@ -85,12 +79,12 @@ const ModalCreateChat = ({ navigation }) => {
       },
       buttonIndex => {
         if (buttonIndex === 1) {
-          toggleCreate()
+          toggleModalCreateChatVisible()
           clearAll()
         }
       })
     } else {
-      toggleCreate()
+      toggleModalCreateChatVisible()
       clearAll()
     }
   }
@@ -102,7 +96,7 @@ const ModalCreateChat = ({ navigation }) => {
   }
 
   const createChat = () => {
-    
+    setIsLoadingCreating(true)
     const fd = new FormData()
     fd.append('chatName', chatName)
     _.each(friendsAddedToChat, (val) => {
@@ -121,7 +115,9 @@ const ModalCreateChat = ({ navigation }) => {
 
     api.call('createGeneralChat', fd)
       .then(({ data }) => {
-        toggleCreate()
+        pushChat(data.data)
+        toggleModalCreateChatVisible()
+        clearAll()
         navigation.navigate('ChatScreen', {
           chat: data.data
         })
@@ -130,7 +126,7 @@ const ModalCreateChat = ({ navigation }) => {
         console.log(error)
       })
       .finally(() => {
-        //
+        setIsLoadingCreating(false)
       })
   }
 
@@ -160,15 +156,19 @@ const ModalCreateChat = ({ navigation }) => {
         >
           <View style={styles.header}>
             <View style={styles.buttonsContainer}>
-              <TouchableOpacity style={{width: 62, ...styles.button}} onPress={closeModal}>
-                <View style={styles.icon}>
+              <TouchableOpacity style={{width: 62, ...styles.button}} onPress={closeModal} disabled={isLoadingCreating}>
+                <View style={styles.iconClose}>
                   <MaterialCommunityIcons name="close-circle" size={28} color="#c9c9c9" />
                 </View>
               </TouchableOpacity>
               <Text style={styles.username}>Новая беседа</Text>
-              <TouchableOpacity style={styles.button} onPress={createChat} disabled={!chatName}>
-                <View style={styles.icon}>
-                  <Ionicons name="add-circle-sharp" size={38} color={chatName ? '#2887f5' : 'grey'} />
+              <TouchableOpacity style={styles.button} onPress={createChat} disabled={!chatName || isLoadingCreating}>
+                <View style={styles.iconCreate}>
+                    { isLoadingCreating ?
+                      <CustomActivityIndicator size={'small'} color={'grey'} />
+                      :
+                      <Ionicons name="add-circle-sharp" size={38} color={chatName ? '#2887f5' : 'grey'} />
+                    }
                 </View>
               </TouchableOpacity>
             </View>
@@ -178,9 +178,13 @@ const ModalCreateChat = ({ navigation }) => {
               <Separator height={1} color='#ececec' marginHorizontal={15} />
               <View style={{flex: 1, paddingHorizontal: 15, marginTop: 20}}>
                 <View style={{flexDirection: 'row', marginBottom: 20, alignItems: 'center'}}>
-                  <TouchableOpacity activeOpacity={0.5} onPress={pickImage} style={{alignItems: 'center'}}>
+                  <TouchableOpacity activeOpacity={0.5} onPress={pickImage} style={{alignItems: 'center'}} disabled={isLoadingCreating}>
                     { avatar ?
-                      <Image source={{ uri: avatar }} style={{ width: 70, height: 70, borderRadius: 100 }} />
+                        <Avatar.Image 
+                        source={{uri: avatar}}
+                        style={{backgroundColor: '#e1e1e1', width: 70, height: 70, borderRadius: 100}}
+                        size={70}
+                      />
                       :
                       <View style={styles.placeholderAvatar}>
                         <Ionicons name="camera-outline" color="#2887f5" size={33} />
@@ -196,6 +200,7 @@ const ModalCreateChat = ({ navigation }) => {
                     }}
                     value={chatName}
                     clearButtonMode='while-editing'
+                    editable={!isLoadingCreating}
                   />
                 </View>
                 
@@ -215,12 +220,13 @@ const ModalCreateChat = ({ navigation }) => {
                           <Title style={styles.title}>{`${friend.first_name} ${friend.last_name}`}</Title>
                         </View>
                         <TouchableOpacity
+                          disabled={isLoadingCreating}
                           activeOpacity={0.5}
                           style={{padding: 4}}
                           onPress={() => toggleAddFriendToNewChat(friend.id)}
                         >
                           { friendsAddedToChat.includes(friend.id) ?
-                              <Ionicons name="remove-circle-outline" size={34} color={'red'} />
+                              <Ionicons name="remove-circle-outline" size={34} color={'#ff2e2e'} />
                             :
                               <Ionicons name="add-circle-outline" size={34} color={'#2887f5'} />
                           }
@@ -259,9 +265,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white'
   },
-  icon: {
+  iconClose: {
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginRight: 2,
+    width: 40
+  },
+  iconCreate: {
+    flex: 1,
+    justifyContent: 'center',
+    marginRight: 2,
+    width: 40,
+    alignItems: 'flex-end'
   },
   inputAccessoryView: {
     height: 50,

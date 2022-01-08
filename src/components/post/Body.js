@@ -13,15 +13,17 @@ export const Body = ({
   const post = useContext(PostContext)
 
   return (
-    <>
+    <View>
       <TouchableOpacity
+        disabled={post.is_loading}
         activeOpacity={1}
-        onPress={() => goToPost && goToPost(post.id, post, false, imgHeight)}
+        onPress={() => goToPost && goToPost(post, false, imgHeight)}
       >
-        { post.data.text && <Text style={styles.textBody}>{post.data.text}</Text> }
+        { post.data.text ? <Text style={styles.textBody}>{post.data.text}</Text> : null }
       </TouchableOpacity>
       
       <TouchableOpacity
+        disabled={post.is_loading}
         activeOpacity={1}
         onPress={toggleModalImageViewerVisible}
       >
@@ -31,7 +33,7 @@ export const Body = ({
           </View>
         }
       </TouchableOpacity>
-    </>
+    </View>
   )
 }
 

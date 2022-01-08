@@ -11,7 +11,9 @@ import {
   SafeAreaView,
   ScrollView,
   RefreshControl,
-  ActionSheetIOS
+  ActionSheetIOS,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native'
 import Post from '../../../components/post/Post'
 import { Comment } from '../../../components/post/Comment'
@@ -19,8 +21,8 @@ import { Axios } from '../../../../services/boot'
 import Api from '../../../../services/api'
 const api = new Api('User')
 import _ from 'lodash'
-import moment from 'moment'
-import 'moment/locale/ru'
+// import moment from 'moment'
+// import 'moment/locale/ru'
 import { Dimensions } from 'react-native'
 import { Separator } from '../../../components/Separator'
 import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator'
@@ -32,31 +34,23 @@ import { View } from 'react-native-animatable'
 
 export const PostScreen = ({route, navigation}) => {
 
-  const { postId, toComments, imgHeight, screenWidth, postParam } = route.params
+  const { toComments, imgHeight, screenWidth } = route.params
 
-  const [ post, setPost ] = useState(postParam)
+  const [ post, setPost ] = useState(route.params.post)
   const [ comments, setComments ] = useState([])
 
-  // const [ screenWidth, setScreenWidth ] = useState(0)
   const [ refreshing, setRefreshing ] = useState(false)
-  // const [ isLoading, setIsLoading ] = useState(true)
   const [ isLoadingComments, setIsLoadingComments ] = useState(true)
 
-  const [ newComment, setNewComment ] = useState('')
+  // const [ newComment, setNewComment ] = useState('')
   const [ textComments, setTextComments ] = useState('')
 
   const scrollRef = useRef()
 
-  const showPlaceholherForComments = post.comments_count !== 0 && isLoadingComments
-
   useEffect(() => {
     showComments()
-    // setScreenWidth(Dimensions.get('window').width)
-    console.log('PostScreen screenWidth: ', screenWidth)
-    // setIsLoading(false)
 
     const lastDigit = post.comments_count % 10
-      
     if (lastDigit === 1) {
       setTextComments('КОММЕНТАРИЙ')
     } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
@@ -65,21 +59,6 @@ export const PostScreen = ({route, navigation}) => {
       setTextComments('КОММЕНТАРИЕВ')
     }
   },[])
-
-  // useEffect(() => {
-  //   if (!isLoading) {
-  //     const lastDigit = post.comments_count % 10
-      
-  //     if (lastDigit === 1) {
-  //       setTextComments('КОММЕНТАРИЙ')
-  //     } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
-  //       setTextComments('КОММЕНТАРИЯ')
-  //     } else {
-  //       setTextComments('КОММЕНТАРИЕВ')
-  //     }
-  //   }
-    
-  // },[isLoading])
 
   useEffect(() => {
     if(post.comments_count !== 0) {
@@ -96,56 +75,35 @@ export const PostScreen = ({route, navigation}) => {
   }, [])
 
   const showPost = () => {
-    api.call('showOnePost', { id: postId })
+    api.call('showOnePost', { id: post.id })
       .then(({ data }) => {
-        data.created_at = moment(data.created_at).fromNow().toString()
+        // data.created_at = moment(data.created_at).fromNow().toString()
         setPost(data)
-        
         setRefreshing(false)
       })
-      .catch(error => {
-        console.log(error)
-      })
       .finally(() => {
-        // setIsLoading(false)
         setRefreshing(false)
       })
   }
 
   const showComments = () => {
-    api.call('showComments', { id: postId })
+    api.call('showComments', { id: post.id })
       .then(({ data }) => {
         let response = data.data
-        response = _.orderBy(response, 'created_at', 'desc')
-        moment.locale('ru')
-        _.each(response, (comment) => {
-          comment.created_at = moment(comment.created_at).fromNow().toString()
-        })
+        // response = _.orderBy(response, 'created_at', 'desc')
+        // moment.locale('ru')
+        // _.each(response, (comment) => {
+        //   comment.created_at = moment(comment.created_at).fromNow().toString()
+        // })
         setComments(response)
-      })
-      .catch(error => {
-        console.log(error)
       })
       .finally(() => {
         setIsLoadingComments(false)
       })
   }
 
-  const sendNewComment = () => {
-    if (newComment) {
-      let fd = new FormData()
-      fd.append('postId', postId)
-      fd.append('comment', newComment)
-
-      api.call('sendNewComment', fd)
-        .then(({ data }) => {
-          setNewComment('')
-        })
-        .catch(error => {
-        })
-        .finally(() => {
-        })
-    }
+  const pushComment = (comment) => {
+    setComments([comment, ...comments])
   }
 
   const scrollToComments = () => {
@@ -167,13 +125,10 @@ export const PostScreen = ({route, navigation}) => {
     })
   }
 
-  // if (isLoading) {
-  //   return <CustomActivityIndicator size='small' color='grey' />
-  // }
-
   return (
     <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <ScrollView
+        keyboardShouldPersistTaps='handled'
         ref={scrollRef}
         refreshControl={
           <RefreshControl
@@ -186,38 +141,32 @@ export const PostScreen = ({route, navigation}) => {
               imgHeightParam={imgHeight}
               scrollToComments={scrollToComments}
               onLike={onLike}
-              loadOnePost={showPost}
+              updateOnePost={showPost}
               optionsButtonVisible={false}
               commentsButtonVisible={false}
             />
-          </PostContext.Provider>
-        { post.comments_count !== 0 ?
-          <>
-            <Separator height={1} color='#e1e1e1' />
-            <Text style={styles.textCommentsCount}>{post.comments_count + ' ' + textComments}</Text>
-          </>
-          : null
-        }
-        { isLoadingComments ?
-            <CustomActivityIndicator size='small' color='grey' />
-          : comments.map((item, index) => (
-            <Comment
-              key={'comment-' + index}
-              comment={item}
+            { post.comments_count !== 0 ?
+                <>
+                  <Separator height={1} color='#e1e1e1' />
+                  <Text style={styles.textCommentsCount}>{post.comments_count + ' ' + textComments}</Text>
+                </>
+              : null
+            }
+            { isLoadingComments ?
+                <CustomActivityIndicator size='small' color='grey' />
+              : comments.map((comment, index) => (
+                <Comment
+                  key={'comment-' + index}
+                  comment={comment}
+                />
+              ))
+            }
+            <CommentAddingForm
+              pushComment={pushComment}
+              recentCommentId={comments[0]?.id}
             />
-          ))
-        }
-        {/* { showPlaceholherForComments && <View style={{height: 500}}></View> } */}
-        
+          </PostContext.Provider>
       </ScrollView>
-      {/* <View style={{backgroundColor: 'green'}}> */}
-        <CommentAddingForm
-          newComment={newComment}
-          setNewComment={setNewComment}
-          sendNewComment={sendNewComment}
-        />
-      {/* </View> */}
-      
     </SafeAreaView>
   )
 }

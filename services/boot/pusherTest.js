@@ -7,10 +7,10 @@ export default (token) => {
         forceTLS: false,
         // encrypted: true,
         key: 'anyKey',
-        wsHost: '192.168.0.16',
+        wsHost: '192.168.0.19',
         wsPort: 6001,
         disableStats: true,
-        authEndpoint: `http://192.168.0.16/broadcasting/auth`,
+        authEndpoint: `http://192.168.0.19/broadcasting/auth`,
         logToConsole: true,
         auth: {
             headers: {

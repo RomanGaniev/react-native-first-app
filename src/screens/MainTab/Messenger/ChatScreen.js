@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react'
-import { SafeAreaView, StyleSheet, ActionSheetIOS } from 'react-native'
-import { GiftedChat } from 'react-native-gifted-chat'
+import { SafeAreaView, StyleSheet, ActionSheetIOS, LogBox } from 'react-native'
+LogBox.ignoreLogs(["Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function."]); // Ignore log notification by message
+import { GiftedChat, InputToolbar, Send } from 'react-native-gifted-chat'
+import { MaterialCommunityIcons, Ionicons, SimpleLineIcons } from '@expo/vector-icons'
+
 
 import Api from '../../../../services/api'
 const api = new Api('User')
@@ -8,7 +11,7 @@ import _ from 'lodash'
 import { Axios, Echo } from '../../../../services/boot'
 import { AuthStateContext } from '../../../states/auth'
 
-import { ChatHeader } from '../../../components/ChatHeader'
+import { ChatHeader } from '../../../components/messenger/ChatHeader'
 import { EmptyChat } from '../../../components/EmptyChat'
 import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator'
 
@@ -24,8 +27,9 @@ let echo
 
 export const ChatScreen = ({route, navigation}) => {
 
-  const {modalEditChatVisible} = useMessengerState()
-  const {toggleEdit} = useMessengerDispatch()
+  const { modalEditChatVisible } = useMessengerState()
+  const { toggleModalEditChatVisible, setChatWhereAddedMessage } = useMessengerDispatch()
+  // const { toggleModalEditChatVisible, setChatWhereAddedMessage } = useMessengerDispatch()
 
   const { chat } = route.params
   const { user } = useContext(AuthStateContext)
@@ -56,6 +60,7 @@ export const ChatScreen = ({route, navigation}) => {
     })
     return () => {
       echo.leaveChannel(`chat.${chat.id}`)
+      readAllMessages()
     }
   }, [])
 
@@ -70,6 +75,12 @@ export const ChatScreen = ({route, navigation}) => {
     .then(({ data }) => {
       let messages = data.data
       messages = _.orderBy(messages, 'createdAt', 'desc')
+      // _.each(response, (comment) => {
+      //   comment.created_at = moment(comment.created_at).fromNow().toString()
+      // })
+      // _.each(messages, (message) => {
+      //   message.system = true 
+      // })
       setMessages(messages)
       // console.log('showChatMessages', messages)
     })
@@ -79,6 +90,13 @@ export const ChatScreen = ({route, navigation}) => {
     .finally(() => {
       setIsLoading(false)
     })    
+  }
+
+  const readAllMessages = () => {
+    api.call('readAllMessagesWhenLeavingChat', { chat_id: chat.id })
+    .then(({ data }) => {
+     //
+    })  
   }
 
   const deleteChat = () => {
@@ -91,14 +109,14 @@ export const ChatScreen = ({route, navigation}) => {
     },
     buttonIndex => {
       if (buttonIndex === 0) {
-        toggleEdit()
+        toggleModalEditChatVisible()
       }
       if (buttonIndex === 1) {
         api.call('deleteGeneralChat', {
           chatId: chat.id
         })
           .then(({ data }) => {
-            toggleEdit()
+            toggleModalEditChatVisible()
             navigation.navigate('MessengerScreen')
           })
           .catch(error => {
@@ -123,15 +141,12 @@ export const ChatScreen = ({route, navigation}) => {
  
   const onSend = useCallback((newMessages = []) => {
     setMessages(previousMessages => GiftedChat.append(previousMessages, newMessages))
-    console.log('newMessages: ', newMessages)
-    setTimeout(() => console.log(messages), 2500)
-
     const fd = new FormData()
     fd.append('chat_id', chat.id)
     fd.append('text', newMessages[0].text)
     api.call('sendMessage', fd)
       .then(({ data }) => {
-        // console.log('data message: ', data)
+        // setChatWhereAddedMessage(chat.id)
       })
       .catch(error => {
         console.log(error)
@@ -153,6 +168,12 @@ export const ChatScreen = ({route, navigation}) => {
       setTypingUser(null)
       navigation.setOptions({headerTitle: () => <ChatHeader chat={chat} typingUser={null} />})
     }, 3000)
+  }
+
+  const updateChat = (chat) => {
+    navigation.setParams({
+      chat
+    })
   }
 
   if (isLoading) {
@@ -178,16 +199,36 @@ export const ChatScreen = ({route, navigation}) => {
           />
         }
         locale='ru'
-        // timeFormat=''
         dateFormat='LL'
+        renderSend={(props) =>
+          <Send {...props}>
+            <SimpleLineIcons name="arrow-up-circle" size={38} color='#2887f5' style={{marginRight: 10, marginBottom: 5}} />
+          </Send>
+        }
+        minInputToolbarHeight={50}
+        minComposerHeight={40}
+        textInputStyle={{
+          fontSize: 16,
+          lineHeight: 25,
+          paddingHorizontal: 10,
+          paddingVertical: 10,
+          backgroundColor: '#efefef',
+          borderWidth: 1,
+          borderColor: '#dfdfdf',
+          borderRadius: 20,
+          marginRight: 10
+        }}
+        renderInputToolbar={(props) =>
+          <InputToolbar {...props} containerStyle={{borderTopWidth: 0}} />
+        }
       />
       { !chat.is_private &&
         <ModalEditChat
           chat={chat}
           navigation={navigation}
+          updateChat={updateChat}
         />
       }
-      
     </SafeAreaView>
   )
 }

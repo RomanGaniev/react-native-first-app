@@ -20,7 +20,7 @@ const MainTabScreen = ({navigation}) => {
   return (
     <MessengerProvider>
       <Tab.Navigator
-        initialRouteName="Friends"
+        initialRouteName="Messenger"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;

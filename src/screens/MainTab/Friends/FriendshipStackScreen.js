@@ -7,7 +7,7 @@ import { FriendRequestsScreen } from './FriendRequestsScreen'
 import { AuthStateContext } from '../../../states/auth'
 
 import { ChatScreen } from '../Messenger/ChatScreen'
-import { ChatHeader } from '../../../components/ChatHeader'
+import { ChatHeader } from '../../../components/messenger/ChatHeader'
 
 import { createStackNavigator } from '@react-navigation/stack'
 import UserProfileScreen from '../../UserProfileScreen'

@@ -78,16 +78,19 @@ export const FriendsScreen = ({navigation}) => {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView
-        contentContainerStyle={{backgroundColor: 'white', flex: 1}}
+        contentContainerStyle={{flex: 1, backgroundColor: 'white'}}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh} />
         }>
       { friendRequests.length > 0 &&
-        <TouchableHighlight onPress={goToFriendRequests} underlayColor="#e1e1e1">
-          <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
-            <View style={{marginLeft: 12, flexDirection: 'row', flex: 1, justifyContent: 'space-between'}}>
+        <TouchableHighlight
+          onPress={goToFriendRequests}
+          underlayColor="#e1e1e1"
+        >
+          <View style={styles.requestsContainer}>
+            <View style={styles.requestsBox}>
               <Text>Заявки в друзья</Text>
               <Text>{friendRequests.length}</Text>
             </View>
@@ -95,22 +98,20 @@ export const FriendsScreen = ({navigation}) => {
         </TouchableHighlight>
       }
         { friends.map((friend, index) => (
-            <TouchableHighlight onPress={() => goToUserProfile(friend)} underlayColor="#e1e1e1" key={'friend-' + index}>
-              <View style={{flexDirection:'row', marginHorizontal: 15, marginVertical: 10, backgroundColor: 'transparent'}}>
+            <TouchableHighlight
+              onPress={() => goToUserProfile(friend)}
+              underlayColor="#e1e1e1"
+              key={'friend-' + index}
+            >
+              <View style={styles.user}>
                 <Avatar.Image 
                   source={{uri: friend.avatar}}
                   style={{backgroundColor: '#e1e1e1'}}
                   size={55}
                 />
                 
-                <View style={{marginLeft: 12, flexDirection: 'column', flex: 1}}>
+                <View style={styles.userName}>
                   <Title style={styles.title}>{`${friend.first_name} ${friend.last_name}`}</Title>
-                  <View style={{flexDirection:'row', marginRight: 60}}>
-                    
-                    <Caption numberOfLines={1} style={[styles.caption, {fontSize: 15, lineHeight: 15}]}>Уфа</Caption>
-                    
-                  </View>
-                  
                 </View>
               </View>
             </TouchableHighlight>
@@ -122,11 +123,6 @@ export const FriendsScreen = ({navigation}) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center'
-  },
   avatar: {
     width: 55,
     height: 55,
@@ -140,14 +136,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black'
   },
-  caption: {
-    fontSize: 14,
-    lineHeight: 14,
-    color: 'grey'
+  user: {
+    flexDirection:'row',
+    marginHorizontal: 15,
+    marginVertical: 10,
+    backgroundColor: 'transparent'
   },
-  captionTime: {
-    fontSize: 14,
-    lineHeight: 14,
-    color: 'grey'
+  userName: {
+    flex: 1,
+    flexDirection: 'column',
+    marginLeft: 12,
+    justifyContent: 'center'
   },
+  requestsContainer: {
+    flexDirection:'row',
+    marginHorizontal: 15,
+    marginVertical: 10,
+    backgroundColor: 'transparent'
+  },
+  requestsBox: {
+    flex: 1,
+    flexDirection: 'row',
+    marginLeft: 12,
+    justifyContent: 'space-between'
+  }
 })

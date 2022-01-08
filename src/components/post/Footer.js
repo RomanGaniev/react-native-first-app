@@ -14,6 +14,12 @@ export const Footer = ({
 
   const post = useContext(PostContext)
 
+  if(post.is_loading) {
+    return (
+      <View style={{height: 10}} />
+    )
+  }
+
   return(
     <View style={styles.actionsContainer}>
       <View style={{flexDirection: 'row'}}>
@@ -34,7 +40,7 @@ export const Footer = ({
           <TouchableOpacity
             activeOpacity={0.8}
             style={styles.actionComment}
-            onPress={() => goToPost(post.id, post, true, imgHeight)}
+            onPress={() => goToPost(post, true, imgHeight)}
           >
             <Ionicons
               style={{paddingTop: 3}}

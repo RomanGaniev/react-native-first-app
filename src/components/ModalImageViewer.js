@@ -131,7 +131,7 @@ const ModalImageViewer = ({ modalImageViewerVisible, toggleModalImageViewerVisib
                 <View style={{flex: 1}}>
                   <TouchableOpacity
                     style={{flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center'}}
-                    onPress={() => { goToComments(post.id, post, true, imgHeight); toggleModalImageViewerVisible() }}
+                    onPress={() => { goToComments(post, true, imgHeight); toggleModalImageViewerVisible() }}
                   >
                     <Ionicons style={{paddingTop: 3}} name="md-chatbox-outline" size={23} color="grey" />
                     { post.comments_count !== 0 ? <Text style={styles.actionTextComment}>{post.comments_count}</Text> : null }          

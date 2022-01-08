@@ -4,8 +4,6 @@ import ModalAddPost from '../../../components/ModalAddPost'
 import Api from '../../../../services/api'
 const api = new Api('User')
 import _ from 'lodash'
-import moment from 'moment'
-import 'moment/locale/ru'
 
 import Post from '../../../components/post/Post'
 import { Dimensions } from 'react-native'
@@ -13,7 +11,6 @@ import { Axios, Echo } from '../../../../services/boot'
 
 import { useToggle } from '../../../../services/helpers/useToggle'
 
-import ModalImageViewer from '../../../components/ModalImageViewer'
 import { Separator } from '../../../components/Separator'
 import { CustomActivityIndicator } from '../../../components/CustomActivityIndicator'
 import { AddPostPanel } from '../../../components/AddPostPanel'
@@ -36,6 +33,7 @@ export const HomeScreen = ({navigation}) => {
   useEffect(() => {
     showPosts()
     setScreenWidth(Dimensions.get('window').width)
+    console.log(posts[0]?.id)
   }, [])
 
   useEffect(() => {
@@ -43,12 +41,16 @@ export const HomeScreen = ({navigation}) => {
 
     if (!isLoading) {
       let pusher = echo
-        .channel(`post-channel`).listen('PostChanged', (e) => {
-          loadOnePost(e.post_id)
-        })
-        .error((error) => {
-          console.error(error)
-        })
+        .channel('post-channel')
+          .listen('AddedNewPost', (e) => {
+            loadAddedPost(e.post_id)
+          })
+          .listen('PostLiked', (e) => {
+            updateOnePost(e.post_id)
+          })
+          .error((error) => {
+            console.error(error)
+          })
       pusher.on('pusher:subscription_succeeded', function() {
         Axios.updateSocketId(echo.socketId())
       })
@@ -63,10 +65,9 @@ export const HomeScreen = ({navigation}) => {
     showPosts()
   }, [])
 
-  const goToPost = (postId, postParam, toComments, imgHeight) => {
+  const goToPost = (post, toComments, imgHeight) => {
     navigation.navigate("PostScreen", {
-      postId: postId,
-      postParam: postParam,
+      post: post,
       toComments: toComments,
       imgHeight: imgHeight,
       screenWidth: screenWidth
@@ -74,15 +75,9 @@ export const HomeScreen = ({navigation}) => {
   }
 
   const showPosts = () => {
-    // setIsLoading(false)
     api.call('showPosts')
       .then(({ data }) => {
         let posts = data.data
-        posts = _.orderBy(posts, 'created_at', 'desc')
-        moment.locale('ru')
-        _.each(posts, (post) => {
-          post.created_at = moment(post.created_at).fromNow().toString()
-        })
         setPosts(posts)
       })
       .catch(error => {
@@ -94,10 +89,10 @@ export const HomeScreen = ({navigation}) => {
       })
   }
 
-  const loadOnePost = (post_id) => {
+  const updateOnePost = (post_id) => {
     api.call('showOnePost', { id: post_id })
       .then(({ data }) => {
-        data.created_at = moment(data.created_at).fromNow().toString()
+        
         const post_id = data.id
         const new_posts = posts.map((post) => {
           if (post.id === post_id) {
@@ -111,6 +106,20 @@ export const HomeScreen = ({navigation}) => {
       .catch(error => {
         console.log(error)
       })
+  }
+
+  const loadAddedPost = (post_id) => {
+    api.call('showOnePost', { id: post_id })
+      .then(({ data }) => {
+        setPosts([data, ...posts])
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
+  const pushPost = (post) => {
+    setPosts([post, ...posts])
   }
 
   const onLike = (post_id) => {
@@ -133,7 +142,6 @@ export const HomeScreen = ({navigation}) => {
     <>
       <SafeAreaView style={{borderStartColor: '#e1e1e1'}}>
         <ScrollView
-          contentContainerStyle={styles.scrollView}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -153,7 +161,7 @@ export const HomeScreen = ({navigation}) => {
                               screenWidth={screenWidth}
                               scrollToComments={goToPost}
                               onLike={onLike}
-                              loadOnePost={loadOnePost}
+                              updateOnePost={updateOnePost}
                               optionsButtonVisible={true}
                               commentsButtonVisible={true}
                             />
@@ -177,31 +185,17 @@ export const HomeScreen = ({navigation}) => {
         <ModalAddPost
           toggleModalVisible={toggleModalAddPostVisible}
           modalVisible={modalAddPostVisible}
+          pushPost={pushPost}
+          recentPostId={posts[0]?.id}
         />
       </SafeAreaView>
-      {/* <ModalImageViewer
-        modalImageViewerVisible={modalImageViewerVisible}
-        toggleModalImageViewerVisible={toggleModalImageViewerVisible}
-        post={currentPost}
-        screenWidth={screenWidth}
-        goToComments={goToPost}
-        handleLike={handleLike}
-        showOptions={showOptions}
-        imgHeight={imageHeightCurrentPost}
-      /> */}
     </>
   )
 }
 
 const styles = StyleSheet.create({
-  containerScrollView: {
-    flex: 1
-  },
   notFound: {
     flex: 1,
     alignItems: 'center'
-  },
-  scrollView: {
-    // backgroundColor: '#e1e1e1'
   }
 })

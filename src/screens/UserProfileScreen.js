@@ -174,9 +174,6 @@ const UserProfileScreen = ({ route, navigation }) => {
                     <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4, backgroundColor: 'red'}]} onPress={removeFromFriends}>
                       <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Удалить из друзей</Text>
                     </TouchableOpacity> : null
-              // <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4, backgroundColor: 'red'}]} onPress={sendFriendRequest}>
-              //   <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Удалить из друзей</Text>
-              // </TouchableOpacity>
             :
               <TouchableOpacity activeOpacity={0.8} style={[styles.button, {marginLeft: 4}]} onPress={sendFriendRequest}>
                 <Text style={{color: 'white', fontWeight: '500', fontSize: 14}}>Добавить в друзья</Text>

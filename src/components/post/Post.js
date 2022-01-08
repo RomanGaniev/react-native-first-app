@@ -19,7 +19,7 @@ const Post = ({
   imgHeightParam,
   scrollToComments,
   onLike,
-  loadOnePost,
+  updateOnePost,
   optionsButtonVisible,
   commentsButtonVisible
 }) => {
@@ -45,7 +45,7 @@ const Post = ({
     onLike(post.id)
     api.call('likePost', { post: post.id })
       .then(({ data }) => {
-        loadOnePost(post.id)
+        updateOnePost(post.id)
       })
       .catch(error => {
         console.log(error)
@@ -92,7 +92,6 @@ const Post = ({
       />
       <Footer
         like={like}
-        loadOnePost={loadOnePost}
         toShare={toShare}
         commentsButtonVisible={commentsButtonVisible}
         goToPost={scrollToComments}

@@ -5,6 +5,8 @@ import GestureRecognizer from 'react-native-swipe-gestures'
 import * as ImagePicker from 'expo-image-picker'
 import { Dimensions } from 'react-native'
 import { Platform } from 'react-native'
+// import moment from 'moment'
+// import 'moment/locale/ru'
 
 import Api from '../../services/api'
 const api = new Api('User')
@@ -18,7 +20,7 @@ import { Separator } from './Separator'
 
 import { AuthStateContext } from '../states/auth'
 
-const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
+const ModalAddPost = ({ toggleModalVisible, modalVisible, pushPost, recentPostId }) => {
 
   const { user } = useContext(AuthStateContext)
   const [text, setText] = useState('');
@@ -41,6 +43,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
         }
       }
     })()
+    console.log('recentPostId ', ++recentPostId)
   }, [])
 
   const pickImage = async () => {
@@ -67,6 +70,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
   }
 
   const createPost = () => {
+    // moment.locale('ru')
     if (text || image) {
       let fd = new FormData()
       fd.append('text', text)
@@ -80,11 +84,32 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible }) => {
         })
       }
 
+      let postForQuiklyPush = {
+        id: ++recentPostId,
+        data: {
+          image: image?.uri,
+          text: text
+        },
+        author: {
+          avatar: user.info.avatar,
+          first_name: user.info.first_name,
+          last_name: user.info.last_name
+        },
+        created_at: 'только что',
+        is_loading: true
+      }
+
+      pushPost(postForQuiklyPush)
+
+      toggleModalVisible()
+      setText('')
+      setImage(null)
+
       api.call('createPost', fd)
         .then(({ data }) => {
-          toggleModalVisible()
-          setText('')
-          setImage(null)
+          // data.created_at = moment(data.created_at).fromNow().toString()
+          data.is_loading = false
+          pushPost(data)
         })
         .catch(error => {
         })

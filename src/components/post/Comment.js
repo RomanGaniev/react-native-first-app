@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 export const Comment = ({ comment }) => (
   <View style={styles.header}>
-    <TouchableOpacity style={styles.author}>
+    <TouchableOpacity activeOpacity={0.5} style={styles.author}>
       <Image source={{uri: comment.commentator.avatar}} style={styles.avatar} width={40} height={40} />
       <View>
         <Text style={styles.authorName}>{comment.commentator.first_name + ' ' + comment.commentator.last_name}</Text>
