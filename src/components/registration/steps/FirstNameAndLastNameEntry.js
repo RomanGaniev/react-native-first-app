@@ -1,13 +1,27 @@
-import React, { useCallback } from 'react'
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback} from 'react-native'
+import React from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback
+} from 'react-native'
 
-export const FirstNameAndLastNameEntry = ({ firstName, lastName, setFirstName, setLastName, goTo }) => {
+export const FirstNameAndLastNameEntry = ({
+  firstName,
+  lastName,
+  setFirstName,
+  setLastName,
+  goTo
+}) => {
 
   const firstNameAndLastNameEntered = firstName && lastName
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={{flex: 1, paddingHorizontal: 25}}>
+      <View style={styles.container}>
         <View style={{flex: 1}}>
           <Text style={styles.textHeader}>Введите имя и фамилию</Text>
           <TextInput
@@ -32,7 +46,11 @@ export const FirstNameAndLastNameEntry = ({ firstName, lastName, setFirstName, s
           />
           <TouchableOpacity
             disabled={!firstNameAndLastNameEntered}
-            style={ firstNameAndLastNameEntered ? styles.nextButtonActive : styles.nextButtonInactive}
+            style={firstNameAndLastNameEntered ?
+                styles.nextButtonActive
+              :
+                styles.nextButtonInactive
+            }
             onPress={goTo}
           >
             <Text style={styles.textNextButton}>Далее</Text>
@@ -44,6 +62,10 @@ export const FirstNameAndLastNameEntry = ({ firstName, lastName, setFirstName, s
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 25
+  },
   input: {
     paddingHorizontal: 12,
     height: 45,

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-axios.defaults.baseURL = 'https://3a37-95-110-69-217.ngrok.io'
+axios.defaults.baseURL = 'https://b19e-95-110-69-217.ngrok.io'
 axios.defaults.headers['Content-Type'] = 'application/json'
 
 

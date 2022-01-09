@@ -1,22 +1,37 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Image, Keyboard, TouchableWithoutFeedback} from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback
+} from 'react-native'
+
 import { Octicons } from '@expo/vector-icons';
+import { Avatar } from 'react-native-paper'
 import { CustomActivityIndicator } from '../../CustomActivityIndicator'
 import * as ImagePicker from 'expo-image-picker'
 
-export const AddingAvatar = ({ avatar, setAvatar, registrationCompleted, isLoadingRegistration, register }) => {
+export const AddingAvatar = ({
+  avatar,
+  setAvatar,
+  registrationCompleted,
+  isLoadingRegistration,
+  register
+}) => {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Images: только изображения, Videos: только видео, All: изображения и видео
-      allowsEditing: true, // Показывать ли интерфейс для редактирования изображения/видео после его выбора
-      allowMultipleSelection: false, // Разрешить или запретить одновременный выбор нескольких файлов мультимедиа
-      aspect: [4, 3], // Соотношение сторон, которое необходимо поддерживать, при "allowsEditing: true" (только Android,  на iOS всегда квадрат)
-      quality: 1, // Качество сжатия от 0 до 1, где 1 максимальное качество
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      allowMultipleSelection: false,
+      aspect: [4, 3],
+      quality: 1,
       base64: false
-    });
+    })
 
-    console.log(result);
+    console.log(result)
 
     if (!result.cancelled) {
       setAvatar(result.uri)
@@ -28,24 +43,46 @@ export const AddingAvatar = ({ avatar, setAvatar, registrationCompleted, isLoadi
       <View style={{flex: 1, paddingHorizontal: 25}}>
         <View style={{flex: 1}}>
           <Text style={styles.textHeader}>Добавьте фото профиля</Text>
-          <TouchableOpacity onPress={pickImage} style={{alignItems: 'center', marginBottom: 25}}>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={pickImage}
+            style={styles.pickImageButton}
+            disabled={isLoadingRegistration}
+          >
             { avatar ?
-              <Image source={{ uri: avatar }} style={{ width: 200, height: 200, borderRadius: 100 }} />
+                <Avatar.Image 
+                  source={{uri: avatar}}
+                  style={{backgroundColor: '#e1e1e1'}}
+                  size={200}
+                />
               :
-              <View style={styles.placeholderAvatar}>
-                <Octicons name="octoface" color="#b8b8b8" size={70} />
-              </View>
+                <View style={styles.placeholderAvatar}>
+                  <Octicons
+                    name="octoface"
+                    color="#b8b8b8"
+                    size={70}
+                  />
+                </View>
             }
           </TouchableOpacity>
           <TouchableOpacity
             disabled={!avatar || registrationCompleted}
-            style={[ avatar ? styles.nextButtonActive : styles.nextButtonInactive, registrationCompleted && {backgroundColor: 'green'} ]}
+            style={[
+              avatar ?
+                  styles.nextButtonActive
+                :
+                  styles.nextButtonInactive,
+              registrationCompleted &&
+                {backgroundColor: 'green'}
+            ]}
             onPress={register}
           >
-            { isLoadingRegistration ?
-              <CustomActivityIndicator size='small' color='white' />
+            { isLoadingRegistration || registrationCompleted ?
+                <CustomActivityIndicator size='small' color='white' />
               :
-              <Text style={styles.textButton}>Завершить регистрацию</Text>
+                <Text style={styles.textButton}>
+                  Завершить регистрацию
+                </Text>
             }
           </TouchableOpacity>
         </View>
@@ -116,5 +153,9 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  pickImageButton: {
+    alignItems: 'center',
+    marginBottom: 25
   }
 })

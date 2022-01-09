@@ -3,8 +3,8 @@ import React, { useEffect } from "react"
 import { NavigationContainer } from '@react-navigation/native'
 import { CustomActivityIndicator } from './src/components/CustomActivityIndicator'
 
-import MainDrawerScreen from './src/screens/MainDrawerScreen'
-import RootStackScreen from './src/screens/RootStack/RootStackScreen'
+import MainDrawerScreen from './src/screens/drawer/MainDrawerScreen'
+import RootStackScreen from './src/screens/root/RootStackScreen'
 
 import { Axios, Echo } from './services/boot'
 // import echo from './services/boot/pusherTest'
@@ -18,6 +18,7 @@ import * as SecureStore from 'expo-secure-store'
 import { AuthDispatchContext, AuthStateContext, authReducer } from './src/states/auth'
 
 const App = () => {
+
   const initialAuthState = {
     isLoading: true,
     user: {

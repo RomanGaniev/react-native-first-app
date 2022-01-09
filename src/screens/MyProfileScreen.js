@@ -1,16 +1,26 @@
-import React, { useContext, useState, useCallback } from 'react'
-import { View, Text, Button, StyleSheet, SafeAreaView, ScrollView, RefreshControl } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import React, {
+  useContext,
+  useState,
+  useCallback
+} from 'react'
+
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  RefreshControl
+} from 'react-native'
 
 import {
   Avatar,
   Title,
   Caption,
-  Drawer
 } from 'react-native-paper'
-import { Separator } from '../components/Separator'
 
+import { Separator } from '../components/Separator'
 import { AuthStateContext } from '../states/auth'
+
+import { SectionInDevelopment } from '../components/SectionInDevelopment'
 
 const MyProfileScreen = () => {
   const { user } = useContext(AuthStateContext)
@@ -25,54 +35,63 @@ const MyProfileScreen = () => {
   }, [])
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-
-      <ScrollView
-        style={{}}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh} />
-        }>
-
-          <Separator height={1} color='#ececec' marginHorizontal={10} />
-
-          <View style={styles.userInfoSection}>
-            <View style={{flexDirection: 'row',marginTop: 15, alignItems: 'center'}}>
-              <View style={{backgroundColor: '#e1e1e1', ...styles.avatar}}>
-                <Avatar.Image 
-                  source={{
-                    uri: user.info.avatar
-                  }}
-                  style={{backgroundColor: '#e1e1e1'}}
-                  size={80}
-                />
-              </View>
-              <View style={{marginLeft: 12, flexDirection: 'column'}}>
-                <Title style={styles.title}>{user.info.first_name + ' ' + user.info.last_name}</Title>
-                <Caption style={styles.userStatus}>Установить статус</Caption>
-                <Caption style={styles.status}>online</Caption>
-              </View>
-            </View>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh} />
+      }>
+      <Separator height={1} color='#ececec' marginHorizontal={10} />
+      <View style={styles.userInfoContainer}>
+        <View style={styles.userInfoSection}>
+          <Avatar.Image 
+            source={{
+              uri: user.info.avatar
+            }}
+            style={{backgroundColor: '#e1e1e1'}}
+            size={80}
+          />
+          <View style={styles.userInfo}>
+            <Title style={styles.title}>
+              {`${user.info.first_name} ${user.info.last_name}`}
+            </Title>
+            <Caption style={styles.userStatus}>
+              Установить статус
+            </Caption>
+            <Caption style={styles.userOnlineStatus}>
+              online
+            </Caption>
           </View>
-
-          <View style={{backgroundColor: '#e1e1e1', margin: 10, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flex: 1, height: 300}}>
-            <Ionicons name="hammer-outline" size={50} color="grey" />
-            <Text style={{fontSize: 15, fontWeight: '500', color: 'grey'}}>Раздел в разработке</Text>
-          </View>
-
-      </ScrollView>
-
-    </SafeAreaView>
+        </View>
+      </View>
+      <SectionInDevelopment
+        isBox={true}
+      />
+    </ScrollView>
   )
 }
 
 export default MyProfileScreen
 
 const styles = StyleSheet.create({
-  userInfoSection: {
-		marginHorizontal: 12
+  container: {
+    flex: 1,
+    backgroundColor: 'white'
+  },
+  userInfoContainer: {
+		marginHorizontal: 12,
+    marginBottom: 15
 	},
+  userInfoSection: {
+    flexDirection: 'row',
+    marginTop: 15,
+    alignItems: 'center'
+  },
+  userInfo: {
+    marginLeft: 12,
+    flexDirection: 'column'
+  },
 	title: {
 		fontSize: 19,
 		marginTop: 0,
@@ -83,7 +102,7 @@ const styles = StyleSheet.create({
 		lineHeight: 14,
     color: '#2887f5'
 	},
-	status: {
+	userOnlineStatus: {
 		fontSize: 14,
 		lineHeight: 14,
     marginTop: 5
@@ -91,7 +110,21 @@ const styles = StyleSheet.create({
   avatar: {
 		width: 80,
 		height: 80,
-		// marginRight: 11,
-		borderRadius: 50
-	}
+		borderRadius: 50,
+    backgroundColor: '#e1e1e1'
+	},
+  sectionInDevelopment: {
+    backgroundColor: '#e1e1e1',
+    margin: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    height: 300
+  },
+  textSectionInDevelopment: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'grey'
+  }
 })

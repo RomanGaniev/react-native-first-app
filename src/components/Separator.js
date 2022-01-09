@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 export const Separator = ({ height, color, marginHorizontal }) => (
   <View
@@ -10,10 +10,3 @@ export const Separator = ({ height, color, marginHorizontal }) => (
     }}
   />
 )
-
-const styles = StyleSheet.create({
-  defaultStyle: {
-    height: 1,
-    backgroundColor: 'black'
-  }
-})

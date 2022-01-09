@@ -1,8 +1,21 @@
-import React, { useCallback, useEffect } from 'react'
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback} from 'react-native'
-import { PasswordTextBox } from '../../PasswordTextBox'
+import React from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback
+} from 'react-native'
+import { PasswordTextBox } from '../PasswordTextBox'
 
-export const PasswordEntry = ({ password, confirmPassword, setPassword, setConfirmPassword, goTo }) => {
+export const PasswordEntry = ({
+  password,
+  confirmPassword,
+  setPassword,
+  setConfirmPassword,
+  goTo
+}) => {
 
   const passwordsEnteredAndEqual = password && confirmPassword && password === confirmPassword
 
@@ -14,22 +27,22 @@ export const PasswordEntry = ({ password, confirmPassword, setPassword, setConfi
           <PasswordTextBox
             value={password}
             setValue={setPassword}
-            // value={password}
-            // onChange={password => setPassword(password)}
             placeholder='Пароль'
             style={styles.input}
           />
           <PasswordTextBox
             value={confirmPassword}
             setValue={setConfirmPassword}
-            // value={confirmPassword}
-            // onChange={confirmPassword => setConfirmPassword(confirmPassword)}
             placeholder='Подтверждение пароля'
             style={styles.input}
           />
           <TouchableOpacity
             disabled={!passwordsEnteredAndEqual}
-            style={passwordsEnteredAndEqual ? styles.nextButtonActive : styles.nextButtonInactive}
+            style={passwordsEnteredAndEqual ?
+                styles.nextButtonActive
+              :
+                styles.nextButtonInactive
+            }
             onPress={goTo}
           >
             <Text style={styles.textNextButton}>Далее</Text>

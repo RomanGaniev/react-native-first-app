@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 export const authReducer = (prevState, action) => {
     switch( action.type ) {
@@ -10,7 +10,7 @@ export const authReducer = (prevState, action) => {
             info: action.info
           },
           isLoading: false,
-        };
+        }
       case 'LOGIN':
         return {
           ...prevState,
@@ -19,7 +19,7 @@ export const authReducer = (prevState, action) => {
             info: action.info
           },
           isLoading: false,
-        };
+        }
       case 'LOGOUT': 
         return {
           ...prevState,
@@ -28,7 +28,7 @@ export const authReducer = (prevState, action) => {
             info: null
           },
           isLoading: false,
-        };
+        }
       case 'REGISTER': 
         return {
           ...prevState,
@@ -37,6 +37,6 @@ export const authReducer = (prevState, action) => {
             info: action.info
           },
           isLoading: false,
-        };
+        }
     }
-};
+}

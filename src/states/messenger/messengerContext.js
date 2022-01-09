@@ -1,68 +1,15 @@
-import React, {useContext, useEffect, useState} from 'react'
-
-const MessengerStateContext = React.createContext()
-const MessengerDispatchContext = React.createContext()
+import React, { useContext } from 'react'
+import {
+	MessengerStateContext,
+	MessengerDispatchContext,
+	messengerReducer
+} from '.'
 
 function MessengerProvider({children}) {
-
-	const messengerReducer = (prevState, action) => {
-		switch( action.type ) {
-			case 'TOGGLE_MODAL_CREATE_CHAT_VISIBLE': 
-				return {
-					...prevState,
-					modalCreateChatVisible: !prevState.modalCreateChatVisible,
-				}
-			case 'TOGGLE_MODAL_EDIT_CHAT_VISIBLE':
-				return {
-					...prevState,
-					modalEditChatVisible: !prevState.modalEditChatVisible,
-				}
-			// case 'SET_CHAT_WHERE_ADDED_MESSAGE':
-			// 	return {
-			// 		...prevState,
-			// 		chatWhereAddedMessage: {
-			// 			id: action.chat_id,
-			// 			is_loading: true
-			// 		},
-			// 	}
-			// case 'CLEAN_CHAT_WHERE_ADDED_MESSAGE':
-			// 	return {
-			// 		...prevState,
-			// 		chatWhereAddedMessage: {
-			// 			id: null,
-			// 			is_loading: false
-			// 		},
-			// 	}
-			case 'SET_EDITED_CHAT':
-				return {
-					...prevState,
-					editedChat: {
-						id: action.chat_id,
-						is_loading: true
-					},
-				}
-			case 'CLEAN_EDITED_CHAT':
-				return {
-					...prevState,
-					editedChat: {
-						id: null,
-						is_loading: false
-					},
-				}
-		}
-	}
 	
 	const initialMessengerState = {
 		modalCreateChatVisible: false,
-		modalEditChatVisible: false,
-		// chatWhereAddedMessage: {
-		// 	id: null,
-		// 	is_loading: false
-		// },
-		editedChat: {
-			id: null,
-			is_loading: false
-		}
+		modalEditChatVisible: false
 	}
 	
 	const [messengerState, dispatch] = React.useReducer(messengerReducer, initialMessengerState)
@@ -78,34 +25,6 @@ function MessengerProvider({children}) {
 		toggleModalEditChatVisible: () => {
 			try {
 				dispatch({ type: 'TOGGLE_MODAL_EDIT_CHAT_VISIBLE' })
-			} catch(e) {
-				console.log(e)
-			}
-		},
-		// setChatWhereAddedMessage: (chat_id) => {
-		// 	try {
-		// 		dispatch({ type: 'SET_CHAT_WHERE_ADDED_MESSAGE', chat_id: chat_id, is_loading: true })
-		// 	} catch(e) {
-		// 		console.log(e)
-		// 	}
-		// },
-		// cleanChatWhereAddedMessage: () => {
-		// 	try {
-		// 		dispatch({ type: 'CLEAN_CHAT_WHERE_ADDED_MESSAGE' })
-		// 	} catch(e) {
-		// 		console.log(e)
-		// 	}
-		// },
-		setEditedChat: (chat_id) => {
-			try {
-				dispatch({ type: 'SET_EDITED_CHAT', chat_id: chat_id, is_loading: true })
-			} catch(e) {
-				console.log(e)
-			}
-		},
-		cleanEditedChat: () => {
-			try {
-				dispatch({ type: 'CLEAN_EDITED_CHAT' })
 			} catch(e) {
 				console.log(e)
 			}

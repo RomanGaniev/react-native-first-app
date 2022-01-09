@@ -1,6 +1,6 @@
 import React from 'react';
 import Axios from './axios'
-import Echo from './pusherTest'
+import Echo from './pusher'
 
 export {
   Axios,
