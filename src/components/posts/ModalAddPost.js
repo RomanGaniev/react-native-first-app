@@ -83,12 +83,12 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible, pushPost, recentPostId
 
   const createPost = () => {
     if (text || image) {
-      let fd = new FormData()
-      fd.append('text', text)
+      let formData = new FormData()
+      formData.append('text', text)
       if (image) {
         let uri = image.uri
         let fileType = uri.substring(uri.lastIndexOf(".") + 1)
-        fd.append('image', {
+        formData.append('image', {
           uri: uri,
           name: `photo.${fileType}`,
           type: `image/${fileType}`
@@ -116,7 +116,7 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible, pushPost, recentPostId
       setText('')
       setImage(null)
 
-      api.call('createPost', fd)
+      api.call('createPost', formData)
         .then(({ data }) => {
           data.is_loading = false
           pushPost(data)
@@ -220,6 +220,19 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible, pushPost, recentPostId
                     setInputAccessoryShown(true)
                   }}
                 />
+                {
+                image &&
+                  <>
+                    <Image
+                      source={{ uri: image.uri }}
+                      style={{width: imgWidth, height: imgHeight}}
+                    />
+                    <Button
+                      title='Удалить изображение'
+                      onPress={() => setImage(null)}
+                    />
+                  </>
+              }
                 <InputAccessoryView
                   style={styles.inputAccessoryView}
                   nativeID={inputAccessoryViewID}
@@ -298,22 +311,8 @@ const ModalAddPost = ({ toggleModalVisible, modalVisible, pushPost, recentPostId
                   </InputAccessoryView>
                 }
               </View>
-              
             </ScrollView>
-              {
-                image &&
-                  <>
-                    <Image
-                      source={{ uri: image.uri }}
-                      style={{width: imgWidth, height: imgHeight}}
-                    />
-                    <Button
-                      title='delete'
-                      onPress={() => setImage(null)}
-                    />
-                  </>
-              }
-              </View>
+          </View>
         </Modal>
       </GestureRecognizer>
     </View>

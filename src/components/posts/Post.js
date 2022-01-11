@@ -42,7 +42,7 @@ const Post = ({
 
   const like = () => {
     onLike(post.id)
-    api.call('likePost', { post: post.id })
+    api.call('togglePostLike', { post_id: post.id })
       .then(({ data }) => {
         updateOnePost(post.id)
       })

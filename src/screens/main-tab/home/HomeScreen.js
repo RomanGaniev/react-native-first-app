@@ -88,7 +88,7 @@ export const HomeScreen = ({navigation}) => {
   }
 
   const showPosts = () => {
-    api.call('showPosts')
+    api.call('getPosts')
       .then(({ data }) => {
         let posts = data.data
         setPosts(posts)
@@ -100,7 +100,7 @@ export const HomeScreen = ({navigation}) => {
   }
 
   const updateOnePost = (post_id) => {
-    api.call('showOnePost', { id: post_id })
+    api.call('getPost', { post_id })
       .then(({ data }) => {
         const post_id = data.id
         const new_posts = posts.map((post) => {
@@ -115,7 +115,7 @@ export const HomeScreen = ({navigation}) => {
   }
 
   const loadAddedPost = (post_id) => {
-    api.call('showOnePost', { id: post_id })
+    api.call('getPost', { post_id })
       .then(({ data }) => {
         setPosts([data, ...posts])
       })

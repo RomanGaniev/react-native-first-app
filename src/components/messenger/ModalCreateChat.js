@@ -45,7 +45,7 @@ const ModalCreateChat = ({ navigation, pushChat }) => {
   }, [])
 
   const showFriends = () => {
-    api.call('showFriends')
+    api.call('getFriends')
       .then(({ data }) => {
         setFriends(data.data)
       })
@@ -96,25 +96,25 @@ const ModalCreateChat = ({ navigation, pushChat }) => {
     setAvatar(null)
   }
 
-  const createChat = () => {
+  const createGroupChat = () => {
     setIsLoadingCreating(true)
-    const fd = new FormData()
-    fd.append('chatName', chatName)
+    const formData = new FormData()
+    formData.append('chatName', chatName)
     _.each(friendsAddedToChat, (val) => {
-      fd.append('friends[]', val)
+      formData.append('friends[]', val)
     })
     if(avatar) {
       let uriAvatar = avatar
       let fileType = uriAvatar.substring(uriAvatar.lastIndexOf(".") + 1)
     
-      fd.append('avatar', {
+      formData.append('avatar', {
         uri: uriAvatar,
         name: `avatar.${fileType}`,
         type: `image/${fileType}`
       })
     }
 
-    api.call('createGeneralChat', fd)
+    api.call('createGroupChat', formData)
       .then(({ data }) => {
         pushChat(data.data)
         toggleModalCreateChatVisible()
@@ -175,7 +175,7 @@ const ModalCreateChat = ({ navigation, pushChat }) => {
               <Text style={styles.headerTitle}>Новая беседа</Text>
               <TouchableOpacity
                 style={styles.button}
-                onPress={createChat}
+                onPress={createGroupChat}
                 disabled={!chatName || isLoadingCreating}
               >
                 <View style={styles.iconCreate}>

@@ -45,7 +45,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const sendFriendRequest = () => {
     api.call('sendFriendRequest', {
-      otherUserId: otherUser.id
+      user_id: otherUser.id
     })
       .then(({ data }) => {
         console.log(data)
@@ -54,7 +54,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const acceptFriendRequest = () => {
     api.call('acceptFriendRequest', {
-      otherUserId: otherUser.id
+      user_id: otherUser.id
     })
       .then(({ data }) => {
         console.log(data)
@@ -63,7 +63,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const rejectOrCancelFriendRequest = () => {
     api.call('rejectOrCancelFriendRequest', {
-      otherUserId: otherUser.id
+      user_id: otherUser.id
     })
       .then(({ data }) => {
         console.log(data)
@@ -72,7 +72,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const removeFromFriends = () => {
     api.call('removeFromFriends', {
-      otherUserId: otherUser.id
+      friend_id: otherUser.id
     })
       .then(({ data }) => {
         console.log(data)
@@ -81,7 +81,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const goToChat = () => {
     api.call('createPrivateChat', {
-      interlocutorId: otherUser.id
+      interlocutor_id: otherUser.id
     })
       .then(({ data }) => {
         navigation.navigate('ChatScreen', {

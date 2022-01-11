@@ -44,16 +44,16 @@ const ModalEditChat = ({ chat, navigation, updateChat }) => {
   const [friendsAddedToChat, setFriendsAddedToChat] = useState([])
 
   useEffect(() => {
-    loadFriends()
-    loadFriendsAddedToChat()
+      showFriends()
+      showFriendsAddedToChat()
   }, [])
 
   useEffect(() => {
     console.log('friendsAddedToChat changed to: ', friendsAddedToChat)
   }, [friendsAddedToChat])
 
-  const loadFriends = () => {
-    api.call('showFriends')
+  const showFriends = () => {
+    api.call('getFriends')
       .then(({ data }) => {
         setFriends(data.data)
       })
@@ -62,8 +62,8 @@ const ModalEditChat = ({ chat, navigation, updateChat }) => {
       })
   }
 
-  const loadFriendsAddedToChat = () => {
-    api.call('showFriendsAddedToChat', {
+  const showFriendsAddedToChat = () => {
+    api.call('getChatParticipants', {
       chat_id: chat.id
     })
       .then(({ data }) => {
@@ -98,31 +98,36 @@ const ModalEditChat = ({ chat, navigation, updateChat }) => {
 
   const clearAll = () => {
     setChatName(chat.name)
-    loadFriendsAddedToChat()
+    showFriendsAddedToChat()
     setAvatar(chat.avatar)
   }
 
   const editChat = () => {
     setIsLoadingEditing(true)
-    const fd = new FormData()
-    fd.append('chatId', chat.id)
-    fd.append('chatName', chatName)
+
+    const formData = new FormData()
+    formData.append('_method', 'PUT')
+    formData.append('chatName', chatName)
     _.each(friendsAddedToChat, (val) => {
-      fd.append('friends[]', val)
+      formData.append('friends[]', val)
     })
     if(avatar !== chat.avatar) {
       let uriAvatar = avatar
       let fileType = uriAvatar.substring(uriAvatar.lastIndexOf(".") + 1)
     
-      fd.append('avatar', {
+      formData.append('avatar', {
         uri: uriAvatar,
         name: `avatar.${fileType}`,
         type: `image/${fileType}`
       })
     }
 
-    api.call('editGeneralChat', fd)
-      .then(({ data }) => {
+    api.call('editChat', {
+      chat_id: chat.id,
+      formData
+    })
+      .then(({data}) => {
+        console.log('DATA', data.data)
         updateChat(data.data)
         toggleModalEditChatVisible()
       })
@@ -142,8 +147,8 @@ const ModalEditChat = ({ chat, navigation, updateChat }) => {
     buttonIndex => {
       if (buttonIndex === 1) {
         setIsLoadingDeleting(true)
-        api.call('deleteGeneralChat', {
-          chatId: chat.id
+        api.call('deleteChat', {
+          chat_id: chat.id
         })
           .then(({ data }) => {
             toggleModalEditChatVisible()

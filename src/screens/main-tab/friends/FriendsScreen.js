@@ -28,20 +28,19 @@ import {
 export const FriendsScreen = ({navigation}) => {
 
   const [friends, setFriends] = useState([])
-  const [friendRequests, setFriendRequests] = useState([])
+  const [requests, setRequests] = useState([])
   const [isLoadingFriends, setIsLoadingFriends] = useState(true)
-  const [isLoadingFriendRequests, setIsLoadingFriendRequests] = useState(true)
+  const [isLoadingRequests, setIsLoadingRequests] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     showFriends()
-    showFriendRequests()
+    showRequests()
   }, [])
 
   const showFriends = () => {
-    api.call('showFriends')
+    api.call('getFriends')
       .then(({ data }) => {
-        // let friends = data
         setFriends(data.data)
       })
       .finally(() => {
@@ -50,13 +49,13 @@ export const FriendsScreen = ({navigation}) => {
       })
   }
 
-  const showFriendRequests = () => {
-    api.call('showFriendRequests')
+  const showRequests = () => {
+    api.call('getFriendRequests')
       .then(({ data }) => {
-        setFriendRequests(data.data)
+        setRequests(data.data)
       })
       .finally(() => {
-        setIsLoadingFriendRequests(false)
+        setIsLoadingRequests(false)
       })
   }
 
@@ -66,19 +65,19 @@ export const FriendsScreen = ({navigation}) => {
     })
   }
 
-  const goToFriendRequests = () => {
+  const goToRequests = () => {
     navigation.navigate("FriendRequestsScreen", {
-      friendRequests
+      requests
     })
   }
 
   const onRefresh = useCallback(() => {
     setRefreshing(true)
     showFriends()
-    showFriendRequests()
+    showRequests()
   }, [])
 
-  if (isLoadingFriends || isLoadingFriendRequests) {
+  if (isLoadingFriends || isLoadingRequests) {
     return <CustomActivityIndicator size='small' color='grey' />
   }
 
@@ -91,15 +90,15 @@ export const FriendsScreen = ({navigation}) => {
             refreshing={refreshing}
             onRefresh={onRefresh} />
         }>
-      { friendRequests.length > 0 &&
+      { requests.length > 0 &&
         <TouchableHighlight
-          onPress={goToFriendRequests}
+          onPress={goToRequests}
           underlayColor="#e1e1e1"
         >
           <View style={styles.requestsContainer}>
             <View style={styles.requestsBox}>
               <Text>Заявки в друзья</Text>
-              <Text>{friendRequests.length}</Text>
+              <Text>{requests.length}</Text>
             </View>
           </View>
         </TouchableHighlight>

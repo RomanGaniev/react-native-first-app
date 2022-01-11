@@ -79,7 +79,7 @@ export const MessengerScreen = ({navigation}) => {
   }, [isLoading])
 
   const showChats = () => {
-    api.call('showChats')
+    api.call('getChats')
       .then(({ data }) => {
         let chats = data.data
         moment.updateLocale('ru', {
@@ -124,7 +124,7 @@ export const MessengerScreen = ({navigation}) => {
   // TODO: Updating the chat list when a message is received!
 
   const loadOneChat = (chat_id) => {
-    api.call('showOneChat', { chat_id })
+    api.call('getChat', { chat_id })
       .then(({ data }) => {
         let data_chat = data.data
         console.log(data_chat)

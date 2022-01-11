@@ -37,11 +37,10 @@ export const CommentAddingForm = ({ pushComment, recentCommentId}) => {
       created_at: 'только что'
     }
 
-    let fd = new FormData()
-    fd.append('postId', post.id)
-    fd.append('comment', newComment)
-
-    api.call('sendNewComment', fd)
+    api.call('createPostComment', {
+      post_id: post.id,
+      comment: newComment
+    })
       .then(({ data }) => {
         pushComment(commentForQuiklyPush)
         setNewComment('')

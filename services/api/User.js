@@ -3,61 +3,54 @@ import axios from 'axios'
 
 class User {
 
-  createPost = (data) => axios.post('api/v1/user/post/create', data, {
+  //======================================== Публикации ========================================//
+  getPosts = () => axios.get('api/v1/user/posts')
+  getPost = (data) => axios.get(`api/v1/user/posts/${data.post_id}`, data)
+  createPost = (formData) => axios.post('api/v1/user/posts', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   })
-  showPosts = () => axios.get('api/v1/user/posts')
-  showOnePost = (data) => axios.get(`api/v1/user/posts/${data.id}`, data)
-  likePost = (data) => axios.post(`api/v1/user/posts/${data.post}/like`, data, {
+  getPostComments = (data) => axios.get(`api/v1/user/posts/${data.post_id}/comments`, data)
+  createPostComment = (data) => axios.post(`api/v1/user/posts/${data.post_id}/comments`, data)
+  togglePostLike = (data) => axios.post(`api/v1/user/posts/${data.post_id}/likes`, data)
+
+  //=========================================== Чаты ===========================================//
+  getChats = () => axios.get('api/v1/user/chats')
+  getChat = (data) => axios.get(`api/v1/user/chats/${data.chat_id}`, data)
+  createGroupChat = (formData) => axios.post(`api/v1/user/chats`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   })
-
-  showComments = (data) => axios.get(`api/v1/user/posts/${data.id}/comments`, data)
-  sendNewComment = (data) => axios.post('api/v1/user/posts/add_comment', data, {
+  createPrivateChat = (data) => axios.post(`api/v1/user/chats/${data.interlocutor_id}`, data)
+  editChat = (data) => axios.post(`api/v1/user/chats/${data.chat_id}`, data.formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   })
-
-  showChats = () => axios.get('api/v1/user/chats')
-  showOneChat = (data) => axios.get(`api/v1/user/chats/${data.chat_id}`, data)
-  createPrivateChat = (data) => axios.post(`api/v1/user/chats/${data.interlocutorId}/create_private`, data)
-  createGeneralChat = (data) => axios.post(`api/v1/user/chats/create_general`, data, {
+  deleteChat = (data) => axios.delete(`api/v1/user/chats/${data.chat_id}`, data)
+  getChatMessages = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/messages`, data)
+  getChatMessage = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/messages/${data.chat_message_id}`, data)
+  createChatMessage = (data) => axios.post(`api/v1/user/chats/${data.chat_id}/messages`, data.formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   })
-  editGeneralChat = (data) => axios.post('api/v1/user/chats/edit_general', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-  deleteGeneralChat = (data) => axios.post(`api/v1/user/chats/${data.chatId}/delete_general`, data)
-  showChatMessages = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/messages`, data)
+  getChatParticipants = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/participants`, data)
+  // TODO: переделать
+  readAllMessagesWhenLeavingChat = (data) => axios.put(`api/v1/user/chats/${data.chat_id}/messages`, data)
 
+  //========================================== Дружба ==========================================//
+  getFriends = () => axios.get('api/v1/user/friendship/friends')
+  removeFromFriends = (data) => axios.delete(`api/v1/user/friendship/friends/${data.friend_id}`, data)
+  
+  getFriendRequests = () => axios.get('api/v1/user/friendship/requests')
+  sendFriendRequest = (data) => axios.post('api/v1/user/friendship/requests', data)
+  acceptFriendRequest = (data) => axios.put(`api/v1/user/friendship/requests/${data.user_id}`, data)
+  rejectOrCancelFriendRequest = (data) => axios.delete(`api/v1/user/friendship/requests/${data.user_id}`, data)
 
-  readAllMessagesWhenLeavingChat = (data) => axios.post(`api/v1/user/chats/${data.chat_id}/messages/read_all`, data)
-
-
-  sendMessage = (data) => axios.post('api/v1/user/chats/send_message', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-  showOneChatMessage = (data) => axios.get(`api/v1/user/chats/messages/${data.chat_message_id}`, data)
-  showFriendsAddedToChat = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/participants`, data)
-
-  showFriends = () => axios.get('api/v1/user/friends')
-  showFriendRequests = () => axios.get('api/v1/user/friends/requests')
-  sendFriendRequest = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/send_request`, data)
-  acceptFriendRequest = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/accept_request`, data)
-  rejectOrCancelFriendRequest = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/reject_or_cancel_request`, data)
-  removeFromFriends = (data) => axios.post(`api/v1/user/friends/${data.otherUserId}/remove`, data)
-
+  // TODO: переделать
   showUsers = () => axios.get('api/v1/user/search/users')
 }
 

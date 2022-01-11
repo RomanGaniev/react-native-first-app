@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-
+import { LogBox } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { CustomActivityIndicator } from './src/components/CustomActivityIndicator'
 
@@ -7,7 +7,6 @@ import MainDrawerScreen from './src/screens/drawer/MainDrawerScreen'
 import RootStackScreen from './src/screens/root/RootStackScreen'
 
 import { Axios, Echo } from './services/boot'
-// import echo from './services/boot/pusherTest'
 import Api from './services/api'
 const api = new Api('Auth')
 import _ from 'lodash'
@@ -18,6 +17,8 @@ import * as SecureStore from 'expo-secure-store'
 import { AuthDispatchContext, AuthStateContext, authReducer } from './src/states/auth'
 
 const App = () => {
+
+  LogBox.ignoreAllLogs() //Ignore all log notifications
 
   const initialAuthState = {
     isLoading: true,

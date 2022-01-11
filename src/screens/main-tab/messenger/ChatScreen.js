@@ -57,27 +57,35 @@ export const ChatScreen = ({route, navigation}) => {
   let typingTimer
 
   useEffect(() => {
-    showMessages()
+    // if(chat?.isCreated === false) {
+      
+    // } else {
+      showMessages()
     
-    echo = new Echo(user.token)
-    let pusher = echo.join(`chat.${chat.id}`)
-      .listen('ChatMessageSent', (e) => {
-        loadOneMessage(e.chat_message_id)
+      echo = new Echo(user.token)
+      let pusher = echo.join(`chat.${chat.id}`)
+        .listen('ChatMessageSent', (e) => {
+          loadOneMessage(e.chat_message_id)
+        })
+        .listenForWhisper('typing', user => {
+          showTypingSubtitle(user)
+        })
+        .error((error) => {
+          console.error(error)
+        })
+      
+      pusher.on('pusher:subscription_succeeded', function() {
+        Axios.updateSocketId(echo.socketId())
       })
-      .listenForWhisper('typing', user => {
-        showTypingSubtitle(user)
-      })
-      .error((error) => {
-        console.error(error)
-      })
+      console.log('chat', chat)
+      return () => {
+        // if(chat?.isCreated) {
+          echo.leaveChannel(`chat.${chat.id}`)
+          readAllMessages()
+        // }
+      }
+    // }
     
-    pusher.on('pusher:subscription_succeeded', function() {
-      Axios.updateSocketId(echo.socketId())
-    })
-    return () => {
-      echo.leaveChannel(`chat.${chat.id}`)
-      readAllMessages()
-    }
   }, [])
 
   useEffect(() => {
@@ -87,7 +95,7 @@ export const ChatScreen = ({route, navigation}) => {
   }, [modalEditChatVisible])
 
   const showMessages = () => {
-    api.call('showChatMessages', { chat_id: chat.id })
+    api.call('getChatMessages', { chat_id: chat.id })
     .then(({ data }) => {
       let messages = data.data
       messages = _.orderBy(messages, 'createdAt', 'desc')
@@ -99,10 +107,10 @@ export const ChatScreen = ({route, navigation}) => {
   }
 
   const readAllMessages = () => {
-    api.call('readAllMessagesWhenLeavingChat', { chat_id: chat.id })
-    .then(({ data }) => {
-      //
-    })  
+    // api.call('readAllMessagesWhenLeavingChat', { chat_id: chat.id })
+    // .then(({ data }) => {
+    //   //
+    // })  
   }
 
   const deleteChat = () => {
@@ -118,8 +126,8 @@ export const ChatScreen = ({route, navigation}) => {
         toggleModalEditChatVisible()
       }
       if (buttonIndex === 1) {
-        api.call('deleteGeneralChat', {
-          chatId: chat.id
+        api.call('deleteChat', {
+          chat_id: chat.id
         })
           .then(({data}) => {
             toggleModalEditChatVisible()
@@ -130,7 +138,10 @@ export const ChatScreen = ({route, navigation}) => {
   }
 
   const loadOneMessage = (chat_message_id) => {
-    api.call('showOneChatMessage', { chat_message_id: chat_message_id })
+    api.call('getChatMessage', {
+      chat_id: chat.id,
+      chat_message_id: chat_message_id
+    })
       .then(({ data }) => {
         setMessages(previousMessages => 
           GiftedChat.append(previousMessages, data.data)
@@ -142,10 +153,14 @@ export const ChatScreen = ({route, navigation}) => {
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, newMessages)
     )
-    const fd = new FormData()
-    fd.append('chat_id', chat.id)
-    fd.append('text', newMessages[0].text)
-    api.call('sendMessage', fd)
+
+    const formData = new FormData()
+    formData.append('text', newMessages[0].text)
+
+    api.call('createChatMessage', {
+      chat_id: chat.id,
+      formData
+    })
       .then(({ data }) => {
         //
       })
@@ -222,7 +237,7 @@ export const ChatScreen = ({route, navigation}) => {
           />
         }
       />
-      { !chat.is_private &&
+      { !chat?.is_private &&
         <ModalEditChat
           chat={chat}
           navigation={navigation}

@@ -41,23 +41,32 @@ export const PostScreen = ({route, navigation}) => {
 
   useEffect(() => {
     showComments()
-    const lastDigit = post.comments_count % 10
-    if (lastDigit === 1) {
-      setTextComments('КОММЕНТАРИЙ')
-    } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
-      setTextComments('КОММЕНТАРИЯ')
-    } else {
-      setTextComments('КОММЕНТАРИЕВ')
-    }
   },[])
 
   useEffect(() => {
-    if(post.comments_count !== 0) {
+    if (!isLoadingComments && comments.length > 0) {
+      showTextComments()
       if (toComments) {
         scrollToComments()
       }
     }
   }, [isLoadingComments])
+
+  useEffect(() => {
+      showTextComments()
+      scrollToComments()
+  }, [comments.length])
+
+  const showTextComments = () => {
+    const lastDigit = comments.length % 10
+      if (lastDigit === 1) {
+        setTextComments('КОММЕНТАРИЙ')
+      } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
+        setTextComments('КОММЕНТАРИЯ')
+      } else {
+        setTextComments('КОММЕНТАРИЕВ')
+      }
+  }
 
   const onRefresh = useCallback(() => {
     setRefreshing(true)
@@ -66,7 +75,7 @@ export const PostScreen = ({route, navigation}) => {
   }, [])
 
   const showPost = () => {
-    api.call('showOnePost', { id: post.id })
+    api.call('getPost', { post_id: post.id })
       .then(({ data }) => {
         setPost(data)
         setRefreshing(false)
@@ -77,7 +86,7 @@ export const PostScreen = ({route, navigation}) => {
   }
 
   const showComments = () => {
-    api.call('showComments', { id: post.id })
+    api.call('getPostComments', { post_id: post.id })
       .then(({ data }) => {
         let response = data.data
         setComments(response)
@@ -89,6 +98,7 @@ export const PostScreen = ({route, navigation}) => {
 
   const pushComment = (comment) => {
     setComments([comment, ...comments])
+    scrollToComments()
   }
 
   const scrollToComments = () => {
@@ -130,10 +140,10 @@ export const PostScreen = ({route, navigation}) => {
               optionsButtonVisible={false}
               commentsButtonVisible={false}
             />
-            { post.comments_count !== 0 ?
+            { comments.length > 0 ?
                 <>
                   <Separator height={1} color='#e1e1e1' />
-                  <Text style={styles.textCommentsCount}>{post.comments_count + ' ' + textComments}</Text>
+                  <Text style={styles.textCommentsCount}>{comments.length + ' ' + textComments}</Text>
                 </>
               : null
             }

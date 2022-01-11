@@ -34,7 +34,7 @@ import { SectionInDevelopment } from '../../components/SectionInDevelopment';
 
 const SearchScreen = ({ navigation }) => {
 
-  const sectionInDevelopment = true
+  const sectionInDevelopment = false
 
   const { user } = useContext(AuthStateContext)
   const [ users, setUsers ] = useState([])
@@ -66,14 +66,18 @@ const SearchScreen = ({ navigation }) => {
   }
 
   const sendFriendRequest = (otherUserId) => {
-    api.call('sendFriendRequest', {otherUserId})
+    api.call('sendFriendRequest', {
+      user_id: otherUserId
+    })
       .then(({ data }) => {
         console.log(data)
       })
   }
 
   const acceptFriendRequest = (otherUserId) => {
-    api.call('acceptFriendRequest', {otherUserId})
+    api.call('acceptFriendRequest', {
+      user_id: otherUserId
+    })
       .then(({ data }) => {
         console.log(data)
       })
