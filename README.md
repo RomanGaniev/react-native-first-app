@@ -1,7 +1,7 @@
 ## About this project
 
-The design of the user interface is made in the likeness of the mobile application "Vk.com"
-The project was created in order to study React Nativ and will not be used for any profit.
+The design of the user interface is made in the likeness of the mobile application "Vk.com".
+The project was created in order to study React Native and will not be used for any profit.
 
 ## Demonstration of the Messenger project
 
