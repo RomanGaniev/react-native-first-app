@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios'
 
 class User {
-
+  
   //======================================== Публикации ========================================//
   getPosts = () => axios.get('api/v1/user/posts')
   getPost = (data) => axios.get(`api/v1/user/posts/${data.post_id}`, data)
@@ -38,8 +38,6 @@ class User {
     }
   })
   getChatParticipants = (data) => axios.get(`api/v1/user/chats/${data.chat_id}/participants`, data)
-  // TODO: переделать
-  readAllMessagesWhenLeavingChat = (data) => axios.put(`api/v1/user/chats/${data.chat_id}/messages`, data)
 
   //========================================== Дружба ==========================================//
   getFriends = () => axios.get('api/v1/user/friendship/friends')

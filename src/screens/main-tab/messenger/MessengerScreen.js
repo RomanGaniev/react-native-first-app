@@ -270,7 +270,7 @@ export const MessengerScreen = ({navigation}) => {
                         :
                           <View style={styles.unreadMessagesCountContainer}>
                             <Text style={styles.unreadMessagesCountText}>
-                              {chat.count_unread_messages}
+                              {chat.unread_messages_count}
                             </Text>
                           </View>
                     :

@@ -11,11 +11,6 @@ import {
   ActionSheetIOS,
   LogBox
 } from 'react-native'
-// LogBox.ignoreLogs(["Warning: Can't perform a React
-// state update on an unmounted component. This is a no-op,
-// but it indicates a memory leak in your application.
-// To fix, cancel all subscriptions and asynchronous tasks
-// in a useEffect cleanup function."]); // Ignore log notification by message
 
 import {
   GiftedChat,
@@ -57,9 +52,6 @@ export const ChatScreen = ({route, navigation}) => {
   let typingTimer
 
   useEffect(() => {
-    // if(chat?.isCreated === false) {
-      
-    // } else {
       showMessages()
     
       echo = new Echo(user.token)
@@ -79,12 +71,8 @@ export const ChatScreen = ({route, navigation}) => {
       })
       console.log('chat', chat)
       return () => {
-        // if(chat?.isCreated) {
-          echo.leaveChannel(`chat.${chat.id}`)
-          readAllMessages()
-        // }
+        echo.leaveChannel(`chat.${chat.id}`)
       }
-    // }
     
   }, [])
 
@@ -104,13 +92,6 @@ export const ChatScreen = ({route, navigation}) => {
     .finally(() => {
       setIsLoading(false)
     })    
-  }
-
-  const readAllMessages = () => {
-    // api.call('readAllMessagesWhenLeavingChat', { chat_id: chat.id })
-    // .then(({ data }) => {
-    //   //
-    // })  
   }
 
   const deleteChat = () => {

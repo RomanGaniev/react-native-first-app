@@ -1,5 +1,4 @@
 import React, { useEffect } from "react"
-import { LogBox } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { CustomActivityIndicator } from './src/components/CustomActivityIndicator'
 
@@ -17,8 +16,6 @@ import * as SecureStore from 'expo-secure-store'
 import { AuthDispatchContext, AuthStateContext, authReducer } from './src/states/auth'
 
 const App = () => {
-
-  LogBox.ignoreAllLogs() //Ignore all log notifications
 
   const initialAuthState = {
     isLoading: true,
