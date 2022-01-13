@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios'
 
 class User {
-  
+
   //======================================== Публикации ========================================//
   getPosts = () => axios.get('api/v1/user/posts')
   getPost = (data) => axios.get(`api/v1/user/posts/${data.post_id}`, data)
@@ -13,7 +13,7 @@ class User {
   })
   getPostComments = (data) => axios.get(`api/v1/user/posts/${data.post_id}/comments`, data)
   createPostComment = (data) => axios.post(`api/v1/user/posts/${data.post_id}/comments`, data)
-  togglePostLike = (data) => axios.post(`api/v1/user/posts/${data.post_id}/likes`, data)
+  togglePostLike = (data) => axios.post(`api/v1/user/posts/${data.post_id}/toggle_like`, data)
 
   //=========================================== Чаты ===========================================//
   getChats = () => axios.get('api/v1/user/chats')

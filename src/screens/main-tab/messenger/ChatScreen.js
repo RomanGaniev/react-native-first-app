@@ -142,9 +142,6 @@ export const ChatScreen = ({route, navigation}) => {
       chat_id: chat.id,
       formData
     })
-      .then(({ data }) => {
-        //
-      })
   }, [])
 
   const sendTypingEvent = () => {
