@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "messenger-app",
-    "slug": "messenger-app",
+    "name": "msgr",
+    "slug": "msgr",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

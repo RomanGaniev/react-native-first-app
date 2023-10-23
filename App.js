@@ -8,14 +8,14 @@ import RootStackScreen from './src/screens/root/RootStackScreen'
 import { Axios, Echo } from './services/boot'
 import Api from './services/api'
 const api = new Api('Auth')
-import _ from 'lodash'
+// import _ from 'lodash'
 
 import * as Device from 'expo-device'
 import * as SecureStore from 'expo-secure-store'
 
 import { AuthDispatchContext, AuthStateContext, authReducer } from './src/states/auth'
-
-const App = () => {
+//
+export default function App() {
 
   const initialAuthState = {
     isLoading: true,
@@ -48,7 +48,7 @@ const App = () => {
           console.log(error)
         })
         .finally(() => {
-          
+
         })
       dispatch({ type: 'LOGIN', token: access_token, info: userInfoData })
     },
@@ -77,23 +77,27 @@ const App = () => {
           } else {
             userToken = localStorage.getItem('access_token')
           }
-  
+
           Axios.setToken(userToken)
-          
+
           api.call('me')
             .then(({ data }) => {
-              userInfoData = data.data
-              
+              console.log('me: ', data)
+              if (data.data.email) {
+                userInfoData = data.data
+              }
+
+
             })
             .catch(error => {
               console.log(error)
             })
             .finally(() => {
               dispatch({ type: 'RETRIEVE_USER', token: userToken, info: userInfoData })
-            })          
-  
+            })
+
         } catch(e) {
-          console.log(e)
+          console.log('me catch: ', e)
         }
       }
       await retrieve()
@@ -114,7 +118,28 @@ const App = () => {
         </NavigationContainer>
       </AuthStateContext.Provider>
     </AuthDispatchContext.Provider>
-  )
+  );
 }
 
-export default App
+
+
+// import { StatusBar } from 'expo-status-bar';
+// import { StyleSheet, Text, View } from 'react-native';
+//
+// export default function App() {
+//   return (
+//       <View style={styles.container}>
+//         <Text>Open up App.js to start working on your app!</Text>
+//         <StatusBar style="auto" />
+//       </View>
+//   );
+// }
+//
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+// });
